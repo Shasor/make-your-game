@@ -1,3 +1,5 @@
+import { System } from './system.js';
+
 export class Render extends System {
   constructor() {
     super();

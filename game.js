@@ -1,4 +1,4 @@
-import { Input } from './core/components/input_component.js';
+import { Input } from './core/systems/input_system.js';
 import { Render } from './core/systems/render_system.js';
 import { createPlayer } from './create/player_create.js';
 
@@ -13,10 +13,8 @@ export class Game {
 
   // tmp
   init() {
-    const player = createPlayer(100, 100, 50, 50, true, 8);
+    const player = createPlayer(100, 100, 50, 50, true, 8, 'red');
     this.addEntity(player);
-    const entity = createPlayer(200, 200, 50, 50, true, 8, 'red');
-    this.addEntity(entity);
     this.addSystem(new Render());
     this.addSystem(new Input());
   }

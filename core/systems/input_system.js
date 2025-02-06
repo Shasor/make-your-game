@@ -1,3 +1,5 @@
+import { System } from './system.js';
+
 export class Input extends System {
   update() {
     this.entities.forEach((entity) => {

@@ -1,4 +1,4 @@
-class System {
+export class System {
   constructor() {
     this.entities = new Set();
   }
