@@ -1,4 +1,5 @@
 import { Input } from './core/systems/input_system.js';
+import { Movement } from './core/systems/movement_system.js';
 import { Render } from './core/systems/render_system.js';
 import { createPlayer } from './create/player_create.js';
 
@@ -16,6 +17,7 @@ export class Game {
     const player = createPlayer(100, 100, 50, 50, true, 8, 'red');
     this.addEntity(player);
     this.addSystem(new Render());
+    this.addSystem(new Movement());
     this.addSystem(new Input());
   }
 
@@ -31,10 +33,6 @@ export class Game {
 
   loop() {
     this.systems.forEach((system) => system.update());
-    this.entities.forEach((entity) => {
-      const input = entity.getComponent('input');
-      input.update();
-    });
     requestAnimationFrame(() => this.loop());
   }
 }
