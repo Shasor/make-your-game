@@ -1,3 +1,4 @@
+import { Collision } from './core/systems/collision_system.js';
 import { Input } from './core/systems/input_system.js';
 import { Movement } from './core/systems/movement_system.js';
 import { Render } from './core/systems/render_system.js';
@@ -16,9 +17,11 @@ export class Game {
   init() {
     const player = createPlayer(100, 100, 50, 50, true, 8, 'red');
     this.addEntity(player);
+    // important order of systems !!
     this.addSystem(new Render());
-    this.addSystem(new Movement());
     this.addSystem(new Input());
+    this.addSystem(new Collision());
+    this.addSystem(new Movement());
   }
 
   addEntity(entity) {
