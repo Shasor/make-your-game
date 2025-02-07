@@ -14,7 +14,7 @@ export class Collision extends System {
       const visualA = entityA.getComponent('visual');
       const velocityA = entityA.getComponent('velocity');
 
-      if (!posA || !visualA) continue;
+      if (!posA || !visualA || !velocityA) continue;
 
       for (let j = i + 1; j < entitiesArray.length; j++) {
         const entityB = entitiesArray[j];
@@ -40,21 +40,15 @@ export class Collision extends System {
     const overlapY = Math.min(posA.y + visualA.height - posB.y, posB.y + visualB.height - posA.y);
 
     if (overlapX < overlapY) {
-      if (posA.x < posB.x) {
-        posA.x -= overlapX / 2;
-      } else {
-        posA.x += overlapX / 2;
-      }
-      if (velocityA) velocityA.vx = 0;
-      if (velocityB) velocityB.vx = 0;
+      if (posA.x > posB.x) posA.x = posB.x + visualB.width;
+      else posA.x = posB.x - visualA.width;
+      velocityA.x = 0;
+      // if (velocityB) velocityB.x = -velocityB.x * 0.8; // Réduction de la vitesse pour simuler une perte d'énergie
     } else {
-      if (posA.y < posB.y) {
-        posA.y -= overlapY / 2;
-      } else {
-        posA.y += overlapY / 2;
-      }
-      if (velocityA) velocityA.vy = 0;
-      if (velocityB) velocityB.vy = 0;
+      if (posA.y > posB.y) posA.y = posB.y + visualB.height;
+      else posA.y = posB.y - visualA.height;
+      velocityA.y = 0;
+      // if (velocityB) velocityB.y = -velocityB.y * 0.8; // Réduction de la vitesse pour simuler une perte d'énergie
     }
   }
 }
