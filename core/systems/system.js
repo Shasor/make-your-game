@@ -1,5 +1,6 @@
 export class System {
   constructor() {
+    this.game = null;
     this.entities = new Set();
   }
 
@@ -9,6 +10,10 @@ export class System {
 
   removeEntity(entity) {
     this.entities.delete(entity);
+  }
+
+  setGame(game) {
+    this.game = game;
   }
 
   update() {
