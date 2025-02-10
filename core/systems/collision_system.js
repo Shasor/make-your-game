@@ -1,26 +1,32 @@
 import { System } from './system.js';
 
 export class Collision extends System {
+  constructor() {
+    super();
+  }
   update() {
     const entitiesArray = Array.from(this.entities);
-
+    
     for (let i = 0; i < entitiesArray.length; i++) {
       const entityA = entitiesArray[i];
       const posA = entityA.getComponent('position');
       const visualA = entityA.getComponent('visual');
       const velocityA = entityA.getComponent('velocity');
-
+      const propertyA = entityA.getComponent('property');
+      
       if (!posA || !visualA || !velocityA) continue;
-
+      
       for (let j = 0; j < entitiesArray.length; j++) {
         const entityB = entitiesArray[j];
         const posB = entityB.getComponent('position');
         const visualB = entityB.getComponent('visual');
         const propertyB = entityB.getComponent('property');
-
-        if (!posB || !visualB || entityA === entityB || !propertyB.solid) continue;
-
+        
+        
+        if (!posB || !visualB || entityA === entityB) continue;
+        
         if (this.isColliding(posA, visualA, posB, visualB)) {
+          propertyB.isCollided = true;
           this.resolveCollision(posA, visualA, velocityA, posB, visualB);
         }
       }
@@ -32,6 +38,8 @@ export class Collision extends System {
   }
 
   resolveCollision(posA, visualA, velocityA, posB, visualB) {
+   
+
     const overlapX = Math.min(posA.x + visualA.width - posB.x, posB.x + visualB.width - posA.x);
     const overlapY = Math.min(posA.y + visualA.height - posB.y, posB.y + visualB.height - posA.y);
     if (overlapX <= overlapY) {
