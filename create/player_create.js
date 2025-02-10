@@ -12,7 +12,7 @@ export function createPlayer(x = 0, y = 0, width = 32, height = 32, movable = fa
   entity.addComponent('velocity', new Velocity());
   entity.addComponent('visual', new Visual(color, height, width));
   entity.addComponent('input', new Input());
-  entity.addComponent('property', new Property(movable, speed));
+  entity.addComponent('property', new Property(movable, speed, false, 12, true));
   entity.addComponent('health', new Health());
   return entity;
 }
