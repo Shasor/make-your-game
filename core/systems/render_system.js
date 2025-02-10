@@ -13,18 +13,17 @@ export class Render extends System {
       const position = entity.getComponent('position');
       const visual = entity.getComponent('visual');
       // create the div
-      entity.div = document.createElement('div');
-      entity.div.setAttribute('uuid', entity.uuid);
+      visual.div.setAttribute('uuid', entity.uuid);
       // position style
-      entity.div.style.position = 'absolute';
-      entity.div.style.left = `${position.x}px`;
-      entity.div.style.top = `${position.y}px`;
+      visual.div.style.position = 'absolute';
+      visual.div.style.left = `${position.x}px`;
+      visual.div.style.top = `${position.y}px`;
       // visual style
-      entity.div.style.width = `${visual.width}px`;
-      entity.div.style.height = `${visual.height}px`;
-      entity.div.style.backgroundColor = visual.bgColor;
+      visual.div.style.width = `${visual.width}px`;
+      visual.div.style.height = `${visual.height}px`;
+      visual.div.style.backgroundColor = visual.bgColor;
       // add entity div into container
-      this.container.appendChild(entity.div);
+      this.container.appendChild(visual.div);
     });
   }
 }
