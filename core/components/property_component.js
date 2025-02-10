@@ -7,5 +7,7 @@ export class Property extends Component {
         this.movable = movable;
         this.speed = speed;
         this.solid = solid;
+        this.isCollided = false;
     }
+   
 }

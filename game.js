@@ -1,15 +1,22 @@
-import { Collision } from './core/systems/collision_system.js';
+
 import { Input } from './core/systems/input_system.js';
 import { Movement } from './core/systems/movement_system.js';
 import { Render } from './core/systems/render_system.js';
 import { createPlayer } from './create/player_create.js';
 import { createTile } from './create/tile_create.js';
+import { createCollectable } from './create/collectable_create.js';
+import { Collision } from './core/systems/collision_system.js';
+import { Collectible } from './core/systems/collectible_system.js';
+
 
 export class Game {
   constructor() {
     this.entities = new Set();
     this.systems = new Set();
 
+    document.addEventListener('entityCollected', (e) => {
+      this.removeEntity(e.detail.entity);
+  });
     this.init();
     this.loop();
   }
@@ -26,11 +33,18 @@ export class Game {
       const tile = createTile(i * 64 + 50, 64 * 9, 64, 64, 'purple');
       this.addEntity(tile);
     }
+    const collectable = createCollectable(250, 250, 'coin', 1, 20, 20, 'gold', true);
+        this.addEntity(collectable);
+
+        const coffre = createCollectable(350, 350, 'coin', 50, 20, 20, 'gold');
+        this.addEntity(coffre);
+
     // important order of systems !!
     this.addSystem(new Input());
     this.addSystem(new Render());
     this.addSystem(new Movement());
     this.addSystem(new Collision());
+    this.addSystem(new Collectible());
   }
 
   addEntity(entity) {
@@ -43,6 +57,10 @@ export class Game {
     this.entities.forEach((entity) => system.addEntity(entity));
   }
 
+  removeEntity(entity) {
+    this.entities.delete(entity);
+    this.systems.forEach(system => system.removeEntity(entity));
+}
   loop() {
     this.systems.forEach((system) => system.update());
     requestAnimationFrame(() => this.loop());
