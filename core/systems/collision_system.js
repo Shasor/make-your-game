@@ -34,7 +34,7 @@ export class Collision extends System {
   resolveCollision(posA, visualA, velocityA, posB, visualB) {
     const overlapX = Math.min(posA.x + visualA.width - posB.x, posB.x + visualB.width - posA.x);
     const overlapY = Math.min(posA.y + visualA.height - posB.y, posB.y + visualB.height - posA.y);
-    if (overlapX < overlapY) {
+    if (overlapX <= overlapY) {
       if (posA.x > posB.x) posA.x = posB.x + visualB.width;
       else posA.x = posB.x - visualA.width;
       velocityA.x = 0;
