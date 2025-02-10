@@ -9,7 +9,11 @@ export class Input extends System {
         const property = entity.getComponent('property');
         if (input && velocity && property.movable) {
           velocity.vx = input.vector.h * property.speed;
-          velocity.vy = input.vector.v * property.speed;
+          if (input.vector.v > 0) {
+            input.vector.v = 0;
+            property.isOnGround = false;
+            velocity.vy = property.jumpStrength;
+          }
         }
       }
     });
