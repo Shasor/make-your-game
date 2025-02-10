@@ -1,9 +1,13 @@
-import { Collision } from './core/systems/collision_system.js';
+import { Gravity } from './core/systems/gravity_system.js';
 import { Input } from './core/systems/input_system.js';
 import { Movement } from './core/systems/movement_system.js';
 import { Render } from './core/systems/render_system.js';
 import { createPlayer } from './create/player_create.js';
 import { createTile } from './create/tile_create.js';
+import { createCollectable } from './create/collectable_create.js';
+import { Collision } from './core/systems/collision_system.js';
+import { Collectible } from './core/systems/collectible_system.js';
+import { createEnemy } from './create/enemy_create.js';
 
 export class Game {
   constructor() {
@@ -16,21 +20,30 @@ export class Game {
 
   // tmp
   init() {
-    const player = createPlayer(150, 150, 50, 50, true, 8, 'red');
+    const player = createPlayer();
     this.addEntity(player);
-    for (let i = 0; i < 9; i++) {
+    const enemy = createEnemy(400, 400);
+    this.addEntity(enemy);
+    for (let i = 0; i < 12; i++) {
       const tile = createTile(50, i * 64, 64, 64, 'purple');
       this.addEntity(tile);
     }
-    for (let i = 9; i > 0; i--) {
-      const tile = createTile(i * 64 + 50, 64 * 9, 64, 64, 'purple');
+    for (let i = 27; i > 0; i--) {
+      const tile = createTile(i * 64 + 50, 64 * 12, 64, 64, 'purple');
       this.addEntity(tile);
     }
+    const collectable = createCollectable(250, 400, 'coin', 1, 20, 20, 'gold', true);
+    this.addEntity(collectable);
+    const coffre = createCollectable(350, 700, 'coin', 50, 20, 20, 'gold');
+    this.addEntity(coffre);
+
     // important order of systems !!
     this.addSystem(new Input());
     this.addSystem(new Render());
     this.addSystem(new Movement());
     this.addSystem(new Collision());
+    this.addSystem(new Gravity());
+    this.addSystem(new Collectible());
   }
 
   addEntity(entity) {
@@ -39,8 +52,14 @@ export class Game {
   }
 
   addSystem(system) {
+    system.setGame(this);
     this.systems.add(system);
     this.entities.forEach((entity) => system.addEntity(entity));
+  }
+
+  removeEntity(entity) {
+    this.entities.delete(entity);
+    this.systems.forEach((system) => system.removeEntity(entity));
   }
 
   loop() {
