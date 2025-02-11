@@ -1,15 +1,19 @@
 import { Component } from './component.js';
 
 export class Health extends Component {
-  constructor(maxHealth = 100) {
+  constructor(maxHealth) {
     super();
     this.maxHealth = maxHealth;
     this.currentHealth = maxHealth;
   }
 
   takeDamage(amount) {
-    this.currentHealth = Math.max(0, this.currentHealth - amount);
-    return this.currentHealth <= 0;
+    this.currentHealth -= amount;
+    if (this.currentHealth <= 0) {
+      this.currentHealth = 0;
+      return true; // Indique que l'entité est morte
+    }
+    return false;
   }
 
   heal(amount) {
