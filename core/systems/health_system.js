@@ -1,4 +1,3 @@
-// core/systems/health_system.js
 import { System } from './system.js';
 
 export class Health extends System {
@@ -69,7 +68,7 @@ export class Health extends System {
 
     // Mise à jour de la barre de vie
     const healthFill = healthBar.querySelector('.health-fill');
-    const percentage = health.healthPercentage;
+    const percentage = health.getHealthPercentage();
     healthFill.style.width = `${percentage}%`;
 
     // Change la couleur en fonction du niveau de vie
