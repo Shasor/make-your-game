@@ -8,14 +8,16 @@ import { createCollectable } from './create/collectable_create.js';
 import { Collision } from './core/systems/collision_system.js';
 import { Collectible } from './core/systems/collectible_system.js';
 import { createEnemy } from './create/enemy_create.js';
+import { Animation } from './core/systems/animation_system.js';
 
 export class Game {
   constructor() {
     this.entities = new Set();
     this.systems = new Set();
+    this.lastTime = 0;
 
     this.init();
-    this.loop();
+    requestAnimationFrame((currentTime) => this.loop(currentTime));
   }
 
   // tmp
@@ -44,6 +46,7 @@ export class Game {
     this.addSystem(new Collision());
     this.addSystem(new Gravity());
     this.addSystem(new Collectible());
+    this.addSystem(new Animation());
   }
 
   addEntity(entity) {
@@ -62,8 +65,10 @@ export class Game {
     this.systems.forEach((system) => system.removeEntity(entity));
   }
 
-  loop() {
-    this.systems.forEach((system) => system.update());
-    requestAnimationFrame(() => this.loop());
+  loop(currentTime) {
+    let deltaTime = (currentTime - this.lastTime) / 1000;
+    this.lastTime = currentTime;
+    this.systems.forEach((system) => system.update(deltaTime));
+    requestAnimationFrame((nextTime) => this.loop(nextTime));
   }
 }
