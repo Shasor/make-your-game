@@ -21,7 +21,7 @@ export class Render extends System {
       // visual style
       visual.div.style.width = `${visual.width}px`;
       visual.div.style.height = `${visual.height}px`;
-      visual.div.style.backgroundColor = visual.bgColor;
+      if (visual.bgColor) visual.div.style.backgroundColor = visual.bgColor;
       // add entity div into container
       this.container.appendChild(visual.div);
     });
