@@ -9,6 +9,9 @@ import { Collision } from './core/systems/collision_system.js';
 import { Collectible } from './core/systems/collectible_system.js';
 import { createEnemy } from './create/enemy_create.js';
 import { Animation } from './core/systems/animation_system.js';
+import { CircleHitbox } from './core/systems/circle_hitbox_system.js';
+import { Damage } from './core/systems/damage_system.js';
+import { Health } from './core/systems/health_system.js';
 
 export class Game {
   constructor() {
@@ -36,14 +39,14 @@ export class Game {
   init() {
     const player = createPlayer();
     this.addEntity(player);
-    const enemy = createEnemy(400, 400);
+    const enemy = createEnemy(400, 700);
     this.addEntity(enemy);
     for (let i = 0; i < 12; i++) {
       const tile = createTile(50, i * 64, 64, 64, 'purple');
       this.addEntity(tile);
     }
     for (let i = 27; i > 0; i--) {
-      const tile = createTile(i * 64 + 50, 64 * 12, 64, 64, 'green');
+      const tile = createTile(i * 64 + 50, 64 * 12, 64, 64, 'purple');
       this.addEntity(tile);
     }
     const collectable = createCollectable(250, 400, 'coin', 1, 20, 20, 'gold', true);
@@ -55,9 +58,12 @@ export class Game {
     this.addSystem(new Input());
     this.addSystem(new Movement());
     this.addSystem(new Collision());
+    this.addSystem(new CircleHitbox());
     this.addSystem(new Gravity());
     this.addSystem(new Collectible());
     this.addSystem(new Animation());
+    this.addSystem(new Damage());
+    this.addSystem(new Health());
     this.addSystem(new Render());
   }
 
