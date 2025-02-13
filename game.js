@@ -14,14 +14,26 @@ import { Damage } from './core/systems/damage_system.js';
 import { Health } from './core/systems/health_system.js';
 
 export class Game {
-    constructor() {
-        this.entities = new Set();
-        this.systems = new Set();
-        this.lastTime = 0;
+  constructor() {
+    this.entities = new Set();
+    this.systems = new Set();
+    this.lastTime = performance.now();
 
-        this.init();
-        requestAnimationFrame((currentTime) => this.loop(currentTime));
-    }
+    window.addEventListener('blur', () => (this.paused = true));
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.paused = !this.paused;
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      this.paused = false;
+      this.lastTime = performance.now();
+    });
+
+    this.init();
+    requestAnimationFrame((currentTime) => this.loop(currentTime));
+  }
 
     // tmp
     init() {
@@ -44,7 +56,6 @@ export class Game {
 
         // important order of systems !!
         this.addSystem(new Input());
-        this.addSystem(new Render());
         this.addSystem(new Movement());
         this.addSystem(new Collision());
         this.addSystem(new CircleHitbox());
@@ -53,6 +64,7 @@ export class Game {
         this.addSystem(new Animation());
         this.addSystem(new Damage());
         this.addSystem(new Health());
+        this.addSystem(new Render());
     }
 
     addEntity(entity) {
@@ -71,10 +83,12 @@ export class Game {
         this.systems.forEach((system) => system.removeEntity(entity));
     }
 
-    loop(currentTime) {
-        let deltaTime = (currentTime - this.lastTime) / 1000;
-        this.lastTime = currentTime;
-        this.systems.forEach((system) => system.update(deltaTime));
-        requestAnimationFrame((nextTime) => this.loop(nextTime));
-    }
+  loop(currentTime) {
+    requestAnimationFrame((nextTime) => this.loop(nextTime));
+    if (this.paused) return;
+    let deltaTime = (currentTime - this.lastTime) / 1000;
+    if (deltaTime > 0.1) deltaTime = 0.1;
+    this.lastTime = currentTime;
+    this.systems.forEach((system) => system.update(deltaTime));
+  }
 }

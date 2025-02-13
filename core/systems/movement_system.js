@@ -2,17 +2,17 @@
 import { System } from './system.js';
 
 export class Movement extends System {
-  update() {
+  update(deltaTime) {
     this.entities.forEach((entity) => {
-      const input = entity.getComponent('input');
-      if (!input) return;
-      input.update();
+      entity.getComponent('input')?.update();
       const position = entity.getComponent('position');
       const velocity = entity.getComponent('velocity');
       const visual = entity.getComponent('visual');
 
-      position.x += velocity.vx;
-      position.y -= velocity.vy;
+      if (!position || !velocity || !visual) return;
+
+      position.x += velocity.vx * deltaTime;
+      position.y -= velocity.vy * deltaTime;
       visual.div.style.left = `${position.x}px`;
       visual.div.style.top = `${position.y}px`;
     });
