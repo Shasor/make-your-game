@@ -14,7 +14,7 @@ export function createPlayer(x = 150, y = 150, width = 64, height = 64, color = 
   entity.addComponent('velocity', new Velocity());
   entity.addComponent('visual', new Visual(color, height, width));
   entity.addComponent('input', new Input());
-  entity.addComponent('property', new Property(true, 7, false, 12, true));
+  entity.addComponent('property', new Property(true, 450, false, 425, true));
   entity.addComponent('health', new Health(100));
   entity.addComponent('damage', new Damage(10));
   entity.addComponent('animation', new PlayerAnimation());

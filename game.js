@@ -14,7 +14,19 @@ export class Game {
   constructor() {
     this.entities = new Set();
     this.systems = new Set();
-    this.lastTime = 0;
+    this.lastTime = performance.now();
+
+    window.addEventListener('blur', () => (this.paused = true));
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.paused = !this.paused;
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      this.paused = false;
+      this.lastTime = performance.now();
+    });
 
     this.init();
     requestAnimationFrame((currentTime) => this.loop(currentTime));
@@ -31,7 +43,7 @@ export class Game {
       this.addEntity(tile);
     }
     for (let i = 27; i > 0; i--) {
-      const tile = createTile(i * 64 + 50, 64 * 12, 64, 64, 'purple');
+      const tile = createTile(i * 64 + 50, 64 * 12, 64, 64, 'green');
       this.addEntity(tile);
     }
     const collectable = createCollectable(250, 400, 'coin', 1, 20, 20, 'gold', true);
@@ -41,12 +53,12 @@ export class Game {
 
     // important order of systems !!
     this.addSystem(new Input());
-    this.addSystem(new Render());
     this.addSystem(new Movement());
     this.addSystem(new Collision());
     this.addSystem(new Gravity());
     this.addSystem(new Collectible());
     this.addSystem(new Animation());
+    this.addSystem(new Render());
   }
 
   addEntity(entity) {
@@ -66,9 +78,11 @@ export class Game {
   }
 
   loop(currentTime) {
+    requestAnimationFrame((nextTime) => this.loop(nextTime));
+    if (this.paused) return;
     let deltaTime = (currentTime - this.lastTime) / 1000;
+    if (deltaTime > 0.1) deltaTime = 0.1;
     this.lastTime = currentTime;
     this.systems.forEach((system) => system.update(deltaTime));
-    requestAnimationFrame((nextTime) => this.loop(nextTime));
   }
 }
