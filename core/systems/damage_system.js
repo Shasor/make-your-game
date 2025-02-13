@@ -4,7 +4,7 @@ export class Damage extends System {
     constructor() {
         super();
         this.lastDamageTime = 0;
-        this.damageInterval = 1000; // 1 seconde entre chaque dégât
+        this.damageInterval = 1000;
     }
 
     update() {
@@ -14,41 +14,62 @@ export class Damage extends System {
             const damageComponent = entity.getComponent('damage');
             const healthComponent = entity.getComponent('health');
             const propertyComponent = entity.getComponent('property');
+            const animation = entity.getComponent('animation');
+            const input = entity.getComponent('input');
 
-            // Vérifie si l'entité a les composants nécessaires et si elle est en collision
-            if (damageComponent && healthComponent && propertyComponent && propertyComponent.isCollided) {
-                // Vérifie si assez de temps s'est écoulé depuis le dernier dégât
-                if (currentTime - this.lastDamageTime >= this.damageInterval) {
-                    console.log('Health before damage:', healthComponent.currentHealth);
-                    const isDead = healthComponent.takeDamage(damageComponent.damageAmount);
-                    console.log('Health after damage:', healthComponent.currentHealth);
+            if (!damageComponent || !healthComponent || !propertyComponent || !animation) return;
 
-                    if (isDead) {
-                        this.handleDeath(entity);
+            // Si déjà mort et en train de jouer l'animation de mort, ne rien faire
+            if (healthComponent.currentHealth <= 0 && animation.currentState === 'death') {
+                return;
+            }
+
+            if (propertyComponent.isCollided && currentTime - this.lastDamageTime >= this.damageInterval) {
+                const isDead = healthComponent.takeDamage(damageComponent.damageAmount);
+                this.lastDamageTime = currentTime;
+
+                if (isDead && animation.sequences.death) {
+                    console.log('Entity died, playing death animation'); // Debug log
+                    propertyComponent.movable = false;
+                    propertyComponent.solid = false;
+                    animation.setState('death');
+
+                    // Pour le joueur
+                    if (input) {
+                        const animationDuration = (animation.sequences.death.frames.length / animation.sequences.death.speed) * 1000;
+                        setTimeout(() => this.restartGame(entity), animationDuration);
                     }
-
-                    this.lastDamageTime = currentTime;
                 }
             }
 
-            // Réinitialise l'état de collision pour le prochain frame
-            if (propertyComponent) {
-                propertyComponent.isCollided = false;
-            }
+            propertyComponent.isCollided = false;
         });
     }
 
-    handleDeath(entity) {
-        const visual = entity.getComponent('visual');
-        const property = entity.getComponent('property');
+    restartGame(playerEntity) {
+        const position = playerEntity.getComponent('position');
+        const velocity = playerEntity.getComponent('velocity');
+        const health = playerEntity.getComponent('health');
+        const property = playerEntity.getComponent('property');
+        const animation = playerEntity.getComponent('animation');
 
+        position.x = 150;
+        position.y = 150;
+
+        velocity.vx = 0;
+        velocity.vy = 0;
+
+        health.reset();
+
+        property.movable = true;
+        property.isOnGround = false;
+
+        animation.setState('idle');
+
+        const visual = playerEntity.getComponent('visual');
         if (visual && visual.div) {
-            visual.div.style.opacity = '0.5';
-            visual.div.style.transition = 'all 0.3s';
-        }
-
-        if (property) {
-            property.movable = false;
+            visual.div.style.top = `${position.y}px`;
+            visual.div.style.left = `${position.x}px`;
         }
     }
 }
