@@ -70,7 +70,7 @@ export class PlayerAnimation extends Animation {
                 speed: 15,
             },
             roulade: {
-                frames: [65, 66, 67, 68, 69, 70],
+                frames: [156, 157, 158, 159, 160],
                 speed: 15,
             },
             chockGround: {
@@ -98,8 +98,8 @@ export class PlayerAnimation extends Animation {
                 speed: 15,
             },
             jump: {
-                frames: [156, 157, 158, 159, 160],
-                speed: 15,
+                frames: [65, 66, 67, 68, 68, 69, 70],
+                speed: 10,
             },
             push: {
                 frames: [169, 170, 171, 172, 173, 174, 175, 176],
