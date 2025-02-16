@@ -22,7 +22,7 @@ export class Input extends Component {
             }
 
             // Initier la roulade
-            if (e.key === '=' && !this.isRolling) {
+            if (e.key === 'n' && !this.isRolling) {
                 this.startRoll();
             }
         });
