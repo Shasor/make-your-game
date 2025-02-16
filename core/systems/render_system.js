@@ -8,7 +8,7 @@ export class Render extends System {
 
   update() {
     this.entities.forEach((entity) => {
-      if (entity.div) return;
+      if (document.querySelector(`[uuid="${entity.uuid}"]`)) return;
       // get all components
       const position = entity.getComponent('position');
       const visual = entity.getComponent('visual');

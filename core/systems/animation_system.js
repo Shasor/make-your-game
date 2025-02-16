@@ -4,7 +4,6 @@ import { System } from './system.js';
 export class Animation extends System {
   constructor() {
     super();
-    this.lastTime = performance.now();
   }
 
   update(deltaTime) {

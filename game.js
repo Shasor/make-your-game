@@ -12,6 +12,7 @@ import { Animation } from './core/systems/animation_system.js';
 import { CircleHitbox } from './core/systems/circle_hitbox_system.js';
 import { Damage } from './core/systems/damage_system.js';
 import { Health } from './core/systems/health_system.js';
+import { Debug } from './core/systems/debug.js';
 
 export class Game {
   constructor() {
@@ -65,6 +66,7 @@ export class Game {
     this.addSystem(new Damage());
     this.addSystem(new Health());
     this.addSystem(new Render());
+    this.addSystem(new Debug());
   }
 
   addEntity(entity) {
