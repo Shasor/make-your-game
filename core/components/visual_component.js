@@ -2,12 +2,15 @@
 import { Component } from './component.js';
 
 export class Visual extends Component {
-  constructor(color, height, width) {
+  constructor(color, height, width, bg, tx, ty) {
     super();
     this.div = document.createElement('div');
     this.height = height;
     this.width = width;
     this.bgColor = color;
+    this.bg = bg;
+    this.tx = tx;
+    this.ty = ty;
   }
 
   updateSprite(frameX, frameY, isFlipped, spritePath, frameWidth, frameHeight, columns, rows) {

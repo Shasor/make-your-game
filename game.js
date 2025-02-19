@@ -2,12 +2,10 @@ import { Gravity } from './core/systems/gravity_system.js';
 import { Input } from './core/systems/input_system.js';
 import { Movement } from './core/systems/movement_system.js';
 import { Render } from './core/systems/render_system.js';
-import { createPlayer } from './create/player_create.js';
 import { createTile } from './create/tile_create.js';
-import { createCollectable } from './create/collectable_create.js';
+import { createPlayer } from './create/player_create.js';
 import { Collision } from './core/systems/collision_system.js';
 import { Collectible } from './core/systems/collectible_system.js';
-import { createEnemy } from './create/enemy_create.js';
 import { Animation } from './core/systems/animation_system.js';
 import { CircleHitbox } from './core/systems/circle_hitbox_system.js';
 import { Damage } from './core/systems/damage_system.js';
@@ -19,6 +17,7 @@ export class Game {
     this.entities = new Set();
     this.systems = new Set();
     this.lastTime = performance.now();
+    this.TILE_SIZE = 32;
 
     window.addEventListener('blur', () => (this.paused = true));
     window.addEventListener('keydown', (e) => {
@@ -38,23 +37,9 @@ export class Game {
 
   // tmp
   init() {
+    this.createMap('maps/map1.json');
     const player = createPlayer();
     this.addEntity(player);
-    const enemy = createEnemy(400, 700);
-    this.addEntity(enemy);
-    for (let i = 0; i < 12; i++) {
-      const tile = createTile(50, i * 64, 64, 64, 'purple');
-      this.addEntity(tile);
-    }
-    for (let i = 27; i > 0; i--) {
-      const tile = createTile(i * 64 + 50, 64 * 12, 64, 64, 'purple');
-      this.addEntity(tile);
-    }
-    const collectable = createCollectable(250, 400, 'coin', 1, 20, 20, 'gold', true);
-    this.addEntity(collectable);
-    const coffre = createCollectable(350, 700, 'coin', 50, 20, 20, 'gold');
-    this.addEntity(coffre);
-
     // important order of systems !!
     this.addSystem(new Input());
     this.addSystem(new Movement());
@@ -85,6 +70,19 @@ export class Game {
     this.systems.forEach((system) => system.removeEntity(entity));
   }
 
+  async createMap(path) {
+    const map = await fetchMap(path);
+    const ratio = this.TILE_SIZE / map.metadata.tileSize;
+
+    let tiles = map.layers[0].data.tiles;
+    for (const tile of tiles) {
+      if (tile.properties.solid) {
+        const entity = createTile(tile.x * ratio, tile.y * ratio, this.TILE_SIZE, this.TILE_SIZE, 'assets/sprites/world_tileset.png', tile.tx, tile.ty);
+        this.addEntity(entity);
+      }
+    }
+  }
+
   loop(currentTime) {
     requestAnimationFrame((nextTime) => this.loop(nextTime));
     if (this.paused) return;
@@ -92,5 +90,14 @@ export class Game {
     if (deltaTime > 0.1) deltaTime = 0.1;
     this.lastTime = currentTime;
     this.systems.forEach((system) => system.update(deltaTime));
+  }
+}
+
+async function fetchMap(path) {
+  try {
+    const resp = await fetch(path);
+    return await resp.json();
+  } catch (error) {
+    console.error(error.message);
   }
 }

@@ -5,6 +5,13 @@ body {
   justify-content: center;
   width: calc(100vw - 40px);
   height: calc(100vh - 40px);
-  position: relative;
   overflow: hidden;
+  background-color: lightblue;
+}
+
+.container {
+  width: 1440px;
+  height: 800px;
+  position: relative;
+  background-image: url('assets/background.png');
 }

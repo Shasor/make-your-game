@@ -21,7 +21,12 @@ export class Render extends System {
       // visual style
       visual.div.style.width = `${visual.width}px`;
       visual.div.style.height = `${visual.height}px`;
-      if (visual.bgColor) visual.div.style.backgroundColor = visual.bgColor;
+      if (!visual.bgColor && !entity.components.has('animation')) {
+        visual.div.style.backgroundImage = `url(${visual.bg})`;
+        visual.div.style.backgroundSize = '1600%';
+        visual.div.style.imageRendering = 'pixelated';
+        visual.div.style.backgroundPosition = `-${visual.tx * 2}px -${visual.ty * 2}px`;
+      } else visual.div.style.backgroundColor = visual.bgColor;
       // add entity div into container
       this.container.appendChild(visual.div);
     });
