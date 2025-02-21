@@ -4,31 +4,30 @@ export class Render extends System {
   constructor(container) {
     super();
     this.container = container;
+    this.gameWorld = this.container.querySelector('.game-world');
   }
 
   update() {
     this.entities.forEach((entity) => {
-      if (document.querySelector(`[uuid="${entity.uuid}"]`)) return;
-      // get all components
-      const position = entity.getComponent('position');
       const visual = entity.getComponent('visual');
-      // create the div
+      if (!visual || visual.div.parentElement) return;
+
+      const position = entity.getComponent('position');
+      if (!position) return;
+
+      if (document.querySelector(`[uuid="${entity.uuid}"]`)) return;
+
+      // Create and style the entity's div
       visual.div.setAttribute('uuid', entity.uuid);
-      // position style
       visual.div.style.position = 'absolute';
       visual.div.style.left = `${position.x}px`;
       visual.div.style.top = `${position.y}px`;
-      // visual style
       visual.div.style.width = `${visual.width}px`;
       visual.div.style.height = `${visual.height}px`;
-      if (!visual.bgColor && !entity.components.has('animation')) {
-        visual.div.style.backgroundImage = `url(${visual.bg})`;
-        visual.div.style.backgroundSize = '1600%';
-        visual.div.style.imageRendering = 'pixelated';
-        visual.div.style.backgroundPosition = `-${visual.tx * 2}px -${visual.ty * 2}px`;
-      } else visual.div.style.backgroundColor = visual.bgColor;
-      // add entity div into container
-      this.container.appendChild(visual.div);
+      if (visual.bgColor) visual.div.style.backgroundColor = visual.bgColor;
+
+      // Add to game world instead of container
+      this.gameWorld.appendChild(visual.div);
     });
   }
 }

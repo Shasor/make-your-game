@@ -9,8 +9,12 @@ import { CircleHitbox } from './core/systems/circle_hitbox_system.js';
 import { Damage } from './core/systems/damage_system.js';
 import { Health } from './core/systems/health_system.js';
 import { Debug } from './core/systems/debug.js';
+import { TileSystem } from './core/systems/tile_system.js';
+import { MapLoader } from './core/map_loader.js';
+import { PhysicsSystem } from './core/systems/physics_system.js';
+import { Camera } from './core/systems/camera_system.js';
+import { EnemyBehavior } from './core/systems/enemy_behavior_system.js';
 import { createMenu } from './utils/utils.js';
-import { createMap } from './create/map_create.js';
 
 export class Game {
   constructor(container) {
@@ -20,7 +24,7 @@ export class Game {
     this.paused = false;
     this.container = document.querySelector(container);
     this.menu = document.createElement('div');
-    this.maps = ['map1'];
+    this.mapLoader = new MapLoader(this);
 
     // window.addEventListener('blur', () => (this.paused = true));
     window.addEventListener('keydown', (e) => {
@@ -34,19 +38,19 @@ export class Game {
     //   this.lastTime = performance.now();
     // });
 
-    this.init();
-    requestAnimationFrame((currentTime) => this.loop(currentTime));
+    this.initAsync().then(() => {
+      requestAnimationFrame((currentTime) => this.loop(currentTime));
+    });
   }
 
   // tmp
-  init() {
-    // create pauseMenu
+  async initAsync() {
     createMenu(this, this.menu);
     this.container.appendChild(this.menu);
-    // create Map
-    createMap(this, `maps/${this.maps[0]}.json`);
     // important order of systems !!
     this.addSystem(new Input());
+    this.addSystem(new EnemyBehavior());
+    this.addSystem(new Camera()); // système de caméra après l'input mais avant le rendu
     this.addSystem(new Movement());
     this.addSystem(new Collision());
     this.addSystem(new CircleHitbox());
@@ -55,8 +59,13 @@ export class Game {
     this.addSystem(new Animation());
     this.addSystem(new Damage());
     this.addSystem(new Health());
+    this.addSystem(new TileSystem());
     this.addSystem(new Render(this.container));
+    this.addSystem(new PhysicsSystem());
     this.addSystem(new Debug());
+
+    // Charger la map
+    await this.mapLoader.loadMap('./assets/maps/map1.json');
   }
 
   addEntity(entity) {
@@ -77,11 +86,11 @@ export class Game {
     this.systems.forEach((system) => system.removeEntity(entity));
   }
 
-  restart() {
+  async restart() {
     this.entities.forEach((entity) => {
       this.removeEntity(entity);
     });
-    createMap(this, `maps/${this.maps[0]}.json`);
+    await this.mapLoader.loadMap('./assets/maps/map1.json');
   }
 
   loop(currentTime) {

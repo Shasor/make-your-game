@@ -1,85 +1,215 @@
+// core/systems/collision_system.js
 import { System } from './system.js';
 
 export class Collision extends System {
   constructor() {
     super();
   }
+
   update() {
-    const entitiesArray = Array.from(this.entities);
+    const entities = Array.from(this.entities);
 
-    for (let i = 0; i < entitiesArray.length; i++) {
-      const entityA = entitiesArray[i];
-      const posA = entityA.getComponent('position');
-      const visualA = entityA.getComponent('visual');
-      const velocityA = entityA.getComponent('velocity');
-      const propertyA = entityA.getComponent('property');
-      const inputA = entityA.getComponent('input');
+    // Trouver le joueur pour les attaques
+    const player = entities.find((entity) => entity.getComponent('input'));
+    if (player) {
+      this.handleAttacks(player, entities);
+    }
 
-      if (!posA || !visualA || !velocityA) continue;
+    // Réinitialiser l'état de poussée pour toutes les entités
+    entities.forEach((entity) => {
+      const property = entity.getComponent('property');
+      const hitbox = entity.getComponent('circle_hitbox');
+      if (property) {
+        property.isPushing = false;
+        property.isCollided = false; // Réinitialiser l'état de collision
+      }
+      if (hitbox && !property?.isPushing) {
+        hitbox.offsetX = 0; // Réinitialiser le décalage
+      }
+    });
 
-      for (let j = 0; j < entitiesArray.length; j++) {
-        const entityB = entitiesArray[j];
-        const posB = entityB.getComponent('position');
-        const visualB = entityB.getComponent('visual');
-        const propertyB = entityB.getComponent('property');
+    // Collisions physiques normales pour toutes les entités
+    for (const entity of entities) {
+      const position = entity.getComponent('position');
+      const visual = entity.getComponent('visual');
+      const velocity = entity.getComponent('velocity');
+      const property = entity.getComponent('property');
+      const hitbox = entity.getComponent('circle_hitbox');
+      const input = entity.getComponent('input');
 
-        if (!posB || !visualB || entityA === entityB) continue;
+      if (!position || !visual || !velocity) continue;
 
-        if (this.isColliding(posA, visualA, posB, visualB)) {
-          propertyA.isOnGround = false;
+      // Traiter différemment les entités avec et sans hitbox circulaire
+      if (hitbox) {
+        this.handleCircleCollisions(entity, entities);
+      } else {
+        this.handleRectangleCollisions(entity, entities);
+      }
+    }
+  }
+
+  handleCircleCollisions(entity, entities) {
+    const position = entity.getComponent('position');
+    const visual = entity.getComponent('visual');
+    const velocity = entity.getComponent('velocity');
+    const property = entity.getComponent('property');
+    const hitbox = entity.getComponent('circle_hitbox');
+    const input = entity.getComponent('input');
+
+    const circleCenter = hitbox.getCircleCenter(position, visual);
+    const circleRadius = hitbox.collisionRadius;
+
+    // 1. Collisions avec les tiles
+    for (const other of entities) {
+      if (entity === other || !other.getComponent('tile')) continue;
+
+      const tilePos = other.getComponent('position');
+      const tileVisual = other.getComponent('visual');
+      const tileProperty = other.getComponent('property');
+
+      if (!tilePos || !tileVisual || !tileProperty.solid) continue;
+
+      const rect = {
+        left: tilePos.x,
+        right: tilePos.x + tileVisual.width,
+        top: tilePos.y,
+        bottom: tilePos.y + tileVisual.height,
+      };
+
+      const closestPoint = {
+        x: Math.max(rect.left, Math.min(circleCenter.x, rect.right)),
+        y: Math.max(rect.top, Math.min(circleCenter.y, rect.bottom)),
+      };
+
+      const dx = circleCenter.x - closestPoint.x;
+      const dy = circleCenter.y - closestPoint.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < circleRadius) {
+        if (distance === 0) continue;
+
+        const overlap = circleRadius - distance;
+        const normalX = dx / distance;
+        const normalY = dy / distance;
+
+        if (Math.abs(normalX) > 0.7) {
+          velocity.vx = 0;
+          position.x = position.x + normalX * overlap;
+        }
+
+        if (Math.abs(normalY) > 0.7) {
+          if (normalY < 0) {
+            property.isOnGround = true;
+            if (input) input.jump = 0;
+          }
+          velocity.vy = 0;
+          position.y = position.y + normalY * overlap;
+        }
+
+        visual.div.style.left = `${position.x}px`;
+        visual.div.style.top = `${position.y}px`;
+      }
+    }
+
+    // 2. Collisions avec les autres entités circulaires
+    for (const other of entities) {
+      if (entity === other || other.getComponent('tile')) continue;
+
+      const posB = other.getComponent('position');
+      const visualB = other.getComponent('visual');
+      const hitboxB = other.getComponent('circle_hitbox');
+      const propertyB = other.getComponent('property');
+
+      // Si l'autre entité a un hitbox circulaire
+      if (hitboxB) {
+        const centerB = hitboxB.getCircleCenter(posB, visualB);
+        const dx = centerB.x - circleCenter.x;
+        const dy = centerB.y - circleCenter.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        const minDistance = circleRadius + hitboxB.collisionRadius;
+        if (distance < minDistance && distance > 0) {
+          const overlap = minDistance - distance;
+          const normalX = dx / distance;
+          const normalY = dy / distance;
+
+          const moveRatio = propertyB?.movable ? 0.5 : 1;
+
+          position.x -= normalX * overlap * moveRatio;
+          position.y -= normalY * overlap * moveRatio;
+
+          if (propertyB?.movable) {
+            posB.x += normalX * overlap * moveRatio;
+            posB.y += normalY * overlap * moveRatio;
+            visualB.div.style.left = `${posB.x}px`;
+            visualB.div.style.top = `${posB.y}px`;
+          }
+
+          visual.div.style.left = `${position.x}px`;
+          visual.div.style.top = `${position.y}px`;
+
+          property.isCollided = true;
           propertyB.isCollided = true;
-          if (!propertyB.solid) continue;
-          this.resolveCollision(posA, visualA, velocityA, propertyA, inputA, posB, visualB, propertyB);
         }
       }
     }
   }
 
-  isColliding(posA, visualA, posB, visualB) {
-    return posA.x < posB.x + visualB.width && posA.x + visualA.width > posB.x && posA.y < posB.y + visualB.height && posA.y + visualA.height > posB.y;
+  handleRectangleCollisions(entity, entities) {
+    const position = entity.getComponent('position');
+    const visual = entity.getComponent('visual');
+    const property = entity.getComponent('property');
+
+    // Vérifier la collision avec le joueur pour les collectibles
+    const player = entities.find((e) => e.getComponent('input'));
+    if (!player) return;
+
+    const playerPos = player.getComponent('position');
+    const playerVisual = player.getComponent('visual');
+
+    if (this.checkRectCollision(position.x, position.y, visual.width, visual.height, playerPos.x, playerPos.y, playerVisual.width, playerVisual.height)) {
+      property.isCollided = true;
+    }
   }
 
-  resolveCollision(posA, visualA, velocityA, propertyA, inputA, posB, visualB, propertyB) {
-    const rectA = {
-      left: posA.x,
-      right: posA.x + visualA.width,
-      top: posA.y,
-      bottom: posA.y + visualA.height,
-    };
-    const rectB = {
-      left: posB.x,
-      right: posB.x + visualB.width,
-      top: posB.y,
-      bottom: posB.y + visualB.height,
-    };
-    // overlaps calculs
-    const overlapX = Math.min(rectA.right - rectB.left, rectB.right - rectA.left);
-    const overlapY = Math.min(rectA.bottom - rectB.top, rectB.bottom - rectA.top);
-    // collision resolution
-    if (overlapX < overlapY) {
-      // Collision horizontale
-      if (posA.x < posB.x) {
-        posA.x = rectB.left - visualA.width;
-        // propertyA.collisionStates.isOnRightWall = true;
-      } else {
-        posA.x = rectB.right;
-        // propertyA.collisionStates.isOnLeftWall = true;
+  checkRectCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+    return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+  }
+
+  handleAttacks(player, entities) {
+    const position = player.getComponent('position');
+    const visual = player.getComponent('visual');
+    const hitbox = player.getComponent('circle_hitbox');
+    const input = player.getComponent('input');
+
+    if (!position || !visual || !hitbox || !input) return;
+
+    const playerCenter = hitbox.getCircleCenter(position, visual);
+
+    if (input.attack1 || input.attack2 || input.attack3 || input.magicAttack || input.arrowShoot) {
+      for (const entity of entities) {
+        if (entity === player || entity.getComponent('tile')) continue;
+
+        const enemyPos = entity.getComponent('position');
+        const enemyVisual = entity.getComponent('visual');
+        const enemyHitbox = entity.getComponent('circle_hitbox');
+        const enemyHealth = entity.getComponent('health');
+
+        if (!enemyPos || !enemyVisual || !enemyHitbox || !enemyHealth) continue;
+
+        const enemyCenter = enemyHitbox.getCircleCenter(enemyPos, enemyVisual);
+        const dx = enemyCenter.x - playerCenter.x;
+        const dy = enemyCenter.y - playerCenter.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if ((input.attack1 || input.attack2 || input.attack3) && distance <= hitbox.meleeRadius + enemyHitbox.collisionRadius) {
+          enemyHealth.takeDamage(25);
+        }
+
+        if ((input.magicAttack || input.arrowShoot) && distance <= hitbox.rangedRadius + enemyHitbox.collisionRadius) {
+          enemyHealth.takeDamage(15);
+        }
       }
-      velocityA.vx = 0;
-    } else {
-      // Collision verticale
-      if (posA.y < posB.y) {
-        posA.y = rectB.top - visualA.height;
-        propertyA.isOnGround = true;
-        if (inputA) inputA.jump = 0;
-      } else {
-        posA.y = rectB.bottom;
-        // propertyA.collisionStates.isOnCeiling = true;
-      }
-      velocityA.vy = 0;
     }
-    // Mise à jour immédiate de la position
-    visualA.div.style.left = `${posA.x}px`;
-    visualA.div.style.top = `${posA.y}px`;
   }
 }
