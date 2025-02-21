@@ -1,3 +1,3 @@
 import { Game } from './game.js';
 
-window.onload = () => new Game();
+window.onload = () => new Game('.container');
