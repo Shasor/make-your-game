@@ -21,11 +21,7 @@ export class Collectible extends System {
 
       if (property.isCollided) {
         this.score += collectible.collect();
-        if (visual && visual.div) {
-          visual.div.remove(); // Supprime l'élément du DOM
-        }
-
-        // Supprimer l'entity de tous les systèmes
+        // Supprimer l'entity de tous les systèmes (+ DOM)
         this.game.removeEntity(entity);
       }
     });

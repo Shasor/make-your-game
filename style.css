@@ -10,8 +10,11 @@ body {
 }
 
 .container {
+  display: flex;
   width: 1440px;
   height: 800px;
   position: relative;
+  align-items: center;
+  justify-content: center;
   background-image: url('assets/background.png');
 }

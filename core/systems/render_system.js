@@ -1,9 +1,9 @@
 import { System } from './system.js';
 
 export class Render extends System {
-  constructor() {
+  constructor(container) {
     super();
-    this.container = document.querySelector('.container');
+    this.container = container;
   }
 
   update() {
