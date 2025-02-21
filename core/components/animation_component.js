@@ -44,6 +44,19 @@ export class Animation extends Component {
     }
 }
 
+export class CoinAnimation extends Animation {
+    constructor() {
+        super();
+        this.sequences = {
+            idle: {
+                frames: [0, 1, 2, 3],
+                speed: 15,
+            },
+        };
+        this.init('./assets/sprites/coin-sprite.png', 32, 32, 4, 1);
+    }
+};
+
 export class PlayerAnimation extends Animation {
     constructor() {
         super();
@@ -143,7 +156,7 @@ export class SatiroAnimation extends Animation {
                 frames: [50, 51, 52, 53, 54, 55, 56, 57, 58, 59],
                 speed: 15,
             },
-            idle7: {
+            magic: {
                 frames: [60, 61, 66, 63],
                 speed: 15,
             },
