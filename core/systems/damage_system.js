@@ -1,75 +1,77 @@
 import { System } from './system.js';
 
 export class Damage extends System {
-  constructor() {
-    super();
-    this.lastDamageTime = 0;
-    this.damageInterval = 1000;
-  }
-
-  update() {
-    const currentTime = Date.now();
-
-    this.entities.forEach((entity) => {
-      const damageComponent = entity.getComponent('damage');
-      const healthComponent = entity.getComponent('health');
-      const propertyComponent = entity.getComponent('property');
-      const animation = entity.getComponent('animation');
-      const input = entity.getComponent('input');
-
-      if (!damageComponent || !healthComponent || !propertyComponent || !animation) return;
-
-      // Si déjà mort et en train de jouer l'animation de mort, ne rien faire
-      if (healthComponent.currentHealth <= 0 && animation.currentState === 'death') {
-        return;
-      }
-
-      if (propertyComponent.isCollided && currentTime - this.lastDamageTime >= this.damageInterval) {
-        const isDead = healthComponent.takeDamage(damageComponent.damageAmount);
-        this.lastDamageTime = currentTime;
-
-        if (isDead && animation.sequences.death) {
-          // console.log('Entity died, playing death animation');
-          propertyComponent.movable = false;
-          propertyComponent.solid = false;
-          animation.setState('death');
-
-          // Pour le joueur
-          if (input) {
-            const animationDuration = (animation.sequences.death.frames.length / animation.sequences.death.speed) * 1000;
-            setTimeout(() => this.restartGame(entity), animationDuration);
-          }
-        }
-      }
-
-      propertyComponent.isCollided = false;
-    });
-  }
-
-  restartGame(playerEntity) {
-    const position = playerEntity.getComponent('position');
-    const velocity = playerEntity.getComponent('velocity');
-    const health = playerEntity.getComponent('health');
-    const property = playerEntity.getComponent('property');
-    const animation = playerEntity.getComponent('animation');
-
-    position.x = 150;
-    position.y = 150;
-
-    velocity.vx = 0;
-    velocity.vy = 0;
-
-    health.reset();
-
-    property.movable = true;
-    property.isOnGround = false;
-
-    animation.setState('idle');
-
-    const visual = playerEntity.getComponent('visual');
-    if (visual && visual.div) {
-      visual.div.style.top = `${position.y}px`;
-      visual.div.style.left = `${position.x}px`;
+    constructor() {
+        super();
+        this.damageInterval = 1000; // 1 seconde entre chaque dégât
+        this.lastDamageTime = new Map(); // Stocke le dernier moment où un ennemi a fait des dégâts
     }
-  }
+
+    update() {
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (!player) return;
+
+        const playerHitbox = player.getComponent('circle_hitbox');
+        const playerPos = player.getComponent('position');
+        const playerVisual = player.getComponent('visual');
+        const playerHealth = player.getComponent('health');
+        const playerAnimation = player.getComponent('animation');
+
+        if (!playerHitbox || !playerPos || !playerVisual || !playerHealth || !playerAnimation) return;
+
+        const playerCenter = playerHitbox.getCircleCenter(playerPos, playerVisual);
+        const currentTime = Date.now();
+
+        this.entities.forEach(enemy => {
+            if (enemy === player) return;
+
+            const enemyHitbox = enemy.getComponent('circle_hitbox');
+            const enemyPos = enemy.getComponent('position');
+            const enemyVisual = enemy.getComponent('visual');
+
+            if (!enemyHitbox || !enemyPos || !enemyVisual) return;
+
+            const enemyCenter = enemyHitbox.getCircleCenter(enemyPos, enemyVisual);
+
+            // Vérifier la collision physique
+            const distance = Math.hypot(
+                playerCenter.x - enemyCenter.x,
+                playerCenter.y - enemyCenter.y
+            );
+
+            if (distance <= (playerHitbox.collisionRadius + enemyHitbox.collisionRadius)) {
+                // Vérifier le cooldown des dégâts
+                const lastDamage = this.lastDamageTime.get(enemy.uuid) || 0;
+                if (currentTime - lastDamage >= this.damageInterval) {
+                    console.log("Player taking damage! Current health:", playerHealth.currentLives); // Debug
+
+                    // Appliquer les dégâts
+                    playerHealth.currentLives--;
+                    this.lastDamageTime.set(enemy.uuid, currentTime);
+
+                    // Animation de dégât
+                    playerAnimation.setState('hurt');
+
+                    console.log("Player health after hit:", playerHealth.currentLives); // Debug
+
+                    // Vérifier la mort du joueur
+                    if (playerHealth.currentLives <= 0) {
+                        console.log("Player died!"); // Debug
+                        playerAnimation.setState('death');
+
+                        // Utiliser handlePlayerDeath au lieu de restart
+                        setTimeout(() => {
+                            if (this.game.handlePlayerDeath) {
+                                this.game.handlePlayerDeath();
+                            } else {
+                                // Fallback si handlePlayerDeath n'existe pas
+                                console.warn("handlePlayerDeath n'existe pas, utilisation de restart");
+                                this.game.restart();
+                            }
+                        }, 1000);
+                    }
+                }
+            }
+        });
+    }
 }

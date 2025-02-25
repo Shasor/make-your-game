@@ -1,32 +1,40 @@
 body {
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
 }
 
 .container {
-  overflow: hidden;
-  background-color: lightblue;
-  display: flex;
-  width: 1440px;
-  height: 800px;
-  position: relative;
-  align-items: center;
-  justify-content: center;
-  background-image: url('assets/background.png');
-  background-color: #000;
+    overflow: hidden;
+    width: 1440px;
+    height: 800px;
+    position: relative;
+    background-color: #000;
 }
 
 .game-world {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  will-change: transform;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+    z-index: 1;
+    transition: background-image 0.3s ease -in -out;
+}
+
+/* Assurez-vous que les entités du jeu sont au-dessus du background */
+.game-world>div {
+    z-index: 2;
+}
+
+/* Le menu pause doit être au-dessus de tout */
+.menu {
+    z-index: 1000;
 }
