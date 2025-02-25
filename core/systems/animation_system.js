@@ -7,6 +7,33 @@ export class Animation extends System {
         this.lastTime = performance.now();
     }
 
+    // Nouvelle méthode pour initialiser les événements
+    setGame(game) {
+        super.setGame(game);
+        // Maintenant on peut s'abonner aux événements car this.game existe
+        this.game.eventBus.on('entityDeath', this.handleEntityDeath.bind(this));
+    }
+
+    handleEntityDeath(entity) {
+        const animation = entity.getComponent('animation');
+        const property = entity.getComponent('property');
+
+        if (!animation || !property) return;
+
+        animation.setState('death');
+        property.solid = false;
+        property.movable = false;
+
+        if (!entity.getComponent('input')) {
+            const deathDuration = (animation.sequences.death.frames.length /
+                animation.sequences.death.speed) * 1000;
+
+            setTimeout(() => {
+                this.game.removeEntity(entity);
+            }, deathDuration);
+        }
+    }
+
     update(deltaTime) {
         this.entities.forEach((entity) => {
             const animation = entity.getComponent('animation');
@@ -25,35 +52,18 @@ export class Animation extends System {
             // Si déjà en animation de mort
             if (animation.currentState === 'death') {
                 this.updateAnimation(animation, visual, deltaTime);
-
-                // Vérifier si l'animation de mort est terminée
-                if (animation.currentFrame >= animation.currentSequence.length - 1) {
-                    // Si ce n'est pas le joueur, supprimer l'entité
-                    if (!input) {
-                        this.game.removeEntity(entity);
-                    }
-                }
                 return;
             }
 
             // Vérifier la mort
-            if (health && health.currentHealth <= 0) {
-                animation.setState('death');
-                // Désactiver les collisions immédiatement
-                property.solid = false;
-                property.movable = false;
-                this.updateAnimation(animation, visual, deltaTime);
+            if (health && health.currentLives <= 0) {
+                this.game.eventBus.emit('entityDeath', entity);
                 return;
             }
 
             // Animations normales
             if (input && property) {
-                // console.log('isPushing:', property.isPushing);
-                // console.log('Current input vector:', input.vector.h);
-
-                // Vérifier la condition de push en premier
                 if (property.isPushing && input.vector.h !== 0) {
-                    // console.log('Setting push animation');
                     animation.setState('push');
                 } else if (input.attack1) {
                     animation.setState('attack1');
@@ -90,7 +100,16 @@ export class Animation extends System {
             const frameNumber = animation.currentSequence[animation.currentFrame];
             const framePosition = animation.getFramePosition(frameNumber);
 
-            visual.updateSprite(framePosition.x, framePosition.y, animation.isFlipped, animation.spriteSheet.src, animation.frameWidth, animation.frameHeight, animation.columns, animation.rows);
+            visual.updateSprite(
+                framePosition.x,
+                framePosition.y,
+                animation.isFlipped,
+                animation.spriteSheet.src,
+                animation.frameWidth,
+                animation.frameHeight,
+                animation.columns,
+                animation.rows
+            );
         }
     }
 }

@@ -15,6 +15,9 @@ export class Animation extends Component {
         this.isFlipped = false;
         this.sequences = {};
         this.currentState = 'idle';
+        this.hurtTimer = 0;
+        this.hurtDuration = 400;  // ms
+        this.waitingForHurt = false;
     }
 
     init(path, width, height, columns, rows) {
@@ -28,11 +31,29 @@ export class Animation extends Component {
     }
 
     setState(state) {
+        // Ne pas changer d'état si on est déjà mort
+        if (this.currentState === 'death') return;
+
         if (this.currentState !== state && this.sequences[state]) {
             this.currentState = state;
             this.currentSequence = this.sequences[state].frames;
             this.currentFrame = 0;
             this.frameTimer = 0;
+        }
+    }
+
+    updateAnimation(deltaTime) {
+        this.frameTimer += deltaTime;
+        if (this.frameTimer >= 1 / this.sequences[this.currentState].speed) {
+            this.frameTimer = 0;
+
+            // Ne pas boucler l'animation de mort
+            if (this.currentState === 'death' &&
+                this.currentFrame >= this.currentSequence.length - 1) {
+                return;
+            }
+
+            this.currentFrame = (this.currentFrame + 1) % this.currentSequence.length;
         }
     }
 
@@ -50,12 +71,29 @@ export class CoinAnimation extends Animation {
         this.sequences = {
             idle: {
                 frames: [0, 1, 2, 3],
-                speed: 15,
+                speed: 5,
             },
         };
         this.init('./assets/sprites/coin-sprite.png', 32, 32, 4, 1);
     }
 };
+
+export class PortalAnimation extends Animation {
+    constructor() {
+        super();
+        this.sequences = {
+            idle: {
+                // Ligne 10 et 11 (indices 10 et 11), toutes les colonnes
+                frames: [
+                    ...Array.from({ length: 15 }, (_, i) => i + (10 * 11)), // Ligne 10
+                    // ...Array.from({ length: 15 }, (_, i) => i + (11 * 11))  // Ligne 11
+                ],
+                speed: 15,
+            },
+        };
+        this.init('./assets/sprites/Free-Smoke.png', 32, 32, 11, 15);
+    }
+}
 
 export class PlayerAnimation extends Animation {
     constructor() {
@@ -140,15 +178,15 @@ export class SatiroAnimation extends Animation {
                 frames: [10, 11, 11, 13, 14, 15, 16, 17], // Deuxième ligne pour la course
                 speed: 15,
             },
-            idle3: {
+            hurt1: {
                 frames: [20, 21, 22, 23],
                 speed: 15,
             },
-            idle4: {
+            fly1: {
                 frames: [30, 31, 32, 33, 34, 35],
                 speed: 15,
             },
-            idle5: {
+            fly2: {
                 frames: [40, 41, 42, 43, 44, 45],
                 speed: 15,
             },
@@ -160,7 +198,7 @@ export class SatiroAnimation extends Animation {
                 frames: [60, 61, 66, 63],
                 speed: 15,
             },
-            idle8: {
+            hurt: {
                 frames: [70, 71, 77, 73, 77, 75],
                 speed: 15,
             },

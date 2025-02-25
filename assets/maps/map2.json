@@ -1,2261 +1,2044 @@
 {
-  "version": "1.0",
-  "metadata": {
-    "width": 27,
-    "height": 12,
-    "tileSize": 16,
-    "tilesetName": "default"
-  },
-  "layers": [
-    {
-      "name": "background",
-      "data": {
-        "format": "sparse",
-        "tiles": [
-          {
-            "x": 0,
-            "y": 11,
-            "tx": 360,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 2,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 3,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 6,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 7,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 9,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 13,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+    "metadata": {
+        "width": 36,
+        "height": 21,
+        "tileSize": 16
+    },
+    "background": {
+        "path": "background/back-map2.jpg"
+    },
+    "spawnpoint": [
+        {
             "x": 1,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 4,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 8,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 10,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 11,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "y": 1
+        }
+    ],
+    "enemy1": [
+        {
+            "x": 7,
+            "y": 5
+        },
+        {
             "x": 12,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 14,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 15,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 17,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 19,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "y": 14
+        },
+        {
             "x": 20,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 22,
-            "y": 11,
-            "tx": 480,
-            "ty": 576,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": true,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 23,
-            "y": 11,
-            "tx": 480,
-            "ty": 576,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": true,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 25,
-            "y": 11,
-            "tx": 480,
-            "ty": 576,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": true,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "y": 7
+        },
+        {
+            "x": 27,
+            "y": 14
+        },
+        {
+            "x": 30,
+            "y": 4
+        }
+    ],
+    "enemy2": [],
+    "enemy3": [],
+    "collectible": [
+        {
             "x": 16,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 18,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 21,
-            "y": 11,
-            "tx": 480,
-            "ty": 336,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 24,
-            "y": 11,
-            "tx": 480,
-            "ty": 576,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": true,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 1,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 2,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 3,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 4,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 5,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 6,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 7,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 8,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 9,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 10,
-            "tx": 456,
-            "ty": 360,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 11,
-            "tx": 312,
-            "ty": 384,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 26,
-            "y": 0,
-            "tx": 312,
-            "ty": 384,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 0,
-            "tx": 360,
-            "ty": 384,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "y": 12,
+            "type": "coin",
+            "valeur": 10
+        },
+        {
             "x": 1,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 2,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 3,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 4,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 6,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 7,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 8,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 9,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 10,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 11,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 12,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 15,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 17,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 18,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 25,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 24,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 23,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 22,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 21,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "y": 15,
+            "type": "coin",
+            "valeur": 10
+        },
+        {
+            "x": 32,
+            "y": 4,
+            "type": "coin",
+            "valeur": 10
+        },
+        {
             "x": 20,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 19,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 16,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 13,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 14,
-            "y": 0,
-            "tx": 480,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
+            "y": 13,
+            "type": "coin",
+            "valeur": 10
+        },
+        {
+            "x": 20,
             "y": 1,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 2,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 5,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
+            "type": "coin",
+            "valeur": 10
+        },
+        {
+            "x": 16,
             "y": 6,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 7,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 8,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 10,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 9,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 3,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 0,
-            "y": 4,
-            "tx": 504,
-            "ty": 360,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 13,
-            "y": 9,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 13,
-            "y": 10,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 17,
-            "y": 9,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 17,
-            "y": 10,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 17,
-            "y": 8,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 17,
-            "y": 7,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 13,
-            "y": 7,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 13,
-            "y": 8,
-            "tx": 0,
-            "ty": 312,
-            "properties": {
-              "solid": true,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 14,
-            "y": 7,
-            "tx": 120,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 15,
-            "y": 7,
-            "tx": 120,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 16,
-            "y": 7,
-            "tx": 120,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 14,
-            "y": 8,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 16,
-            "y": 8,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 16,
-            "y": 9,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 16,
-            "y": 10,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 15,
-            "y": 10,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 14,
-            "y": 10,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 14,
-            "y": 9,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 15,
-            "y": 9,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 15,
-            "y": 8,
-            "tx": 120,
-            "ty": 336,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": true,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 2,
-            "y": 10,
-            "tx": 24,
-            "ty": 48,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": true,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 18,
-            "y": 10,
-            "tx": 24,
-            "ty": 48,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": true,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 1,
-            "tx": 504,
-            "ty": 216,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 2,
-            "tx": 504,
-            "ty": 216,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 3,
-            "tx": 504,
-            "ty": 216,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 4,
-            "tx": 504,
-            "ty": 216,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 5,
-            "tx": 504,
-            "ty": 216,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 6,
-            "tx": 504,
-            "ty": 216,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 5,
-            "y": 7,
-            "tx": 504,
-            "ty": 240,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 6,
-            "y": 10,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 6,
-            "y": 9,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 7,
-            "y": 7,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 8,
-            "y": 7,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 9,
-            "y": 6,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "type": "coin",
+            "valeur": 10
+        }
+    ],
+    "tiles": [
+        {
             "x": 10,
-            "y": 5,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 12,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 0,
+            "y": 0,
+            "tx": 256,
+            "ty": 160
+        },
+        {
+            "x": 17,
+            "y": 0,
+            "tx": 320,
+            "ty": 160
+        },
+        {
+            "x": 18,
+            "y": 0,
+            "tx": 608,
+            "ty": 192
+        },
+        {
+            "x": 35,
+            "y": 0,
+            "tx": 672,
+            "ty": 192
+        },
+        {
+            "x": 35,
+            "y": 1,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 2,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 3,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
             "y": 4,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 21,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
             "y": 5,
-            "tx": 216,
-            "ty": 312,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": true,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 21,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 6,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
             "y": 7,
-            "tx": 24,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 8,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 9,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 10,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 11,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 12,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 13,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 14,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 15,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 16,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 17,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 18,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 19,
+            "tx": 672,
+            "ty": 224
+        },
+        {
+            "x": 35,
+            "y": 20,
+            "tx": 672,
+            "ty": 256
+        },
+        {
+            "x": 34,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 33,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 32,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 31,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 30,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 29,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 28,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 27,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 26,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 25,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
             "x": 22,
-            "y": 7,
-            "tx": 24,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 20,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 19,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 21,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
             "x": 23,
-            "y": 7,
-            "tx": 24,
-            "ty": 384,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 3,
-            "y": 4,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 24,
+            "y": 20,
+            "tx": 640,
+            "ty": 256
+        },
+        {
+            "x": 18,
+            "y": 20,
+            "tx": 608,
+            "ty": 256
+        },
+        {
+            "x": 17,
+            "y": 20,
+            "tx": 320,
+            "ty": 224
+        },
+        {
+            "x": 16,
+            "y": 20,
             "tx": 288,
-            "ty": 456,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
-            "x": 8,
-            "y": 4,
-            "tx": 312,
-            "ty": 456,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "ty": 224
+        },
+        {
+            "x": 15,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 14,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 13,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
             "x": 12,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 11,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 10,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 9,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 8,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 7,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 6,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 5,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 4,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 3,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 2,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 1,
+            "y": 20,
+            "tx": 288,
+            "ty": 224
+        },
+        {
+            "x": 0,
+            "y": 20,
+            "tx": 256,
+            "ty": 224
+        },
+        {
+            "x": 0,
+            "y": 19,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 18,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 17,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 16,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 15,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 14,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 12,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 13,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 1,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
             "y": 2,
-            "tx": 336,
-            "ty": 456,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          },
-          {
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 3,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 4,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 5,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 6,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 7,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 8,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 9,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 10,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 0,
+            "y": 11,
+            "tx": 256,
+            "ty": 192
+        },
+        {
+            "x": 1,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 2,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 3,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 4,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 5,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 6,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 7,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 8,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 9,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 10,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 11,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 12,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 13,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 14,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 15,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 16,
+            "y": 0,
+            "tx": 288,
+            "ty": 160
+        },
+        {
+            "x": 17,
+            "y": 1,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 2,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 3,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 4,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 5,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 6,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 7,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 19,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 18,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 17,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 16,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 15,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 14,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 13,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 12,
+            "tx": 320,
+            "ty": 192
+        },
+        {
+            "x": 17,
+            "y": 8,
+            "tx": 0,
+            "ty": 64
+        },
+        {
+            "x": 19,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 20,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 21,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 22,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 23,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 24,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 25,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 26,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 27,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 28,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 29,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 30,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 31,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 32,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 33,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 34,
+            "y": 0,
+            "tx": 640,
+            "ty": 192
+        },
+        {
+            "x": 18,
+            "y": 1,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 2,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 3,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 5,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 7,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 8,
+            "tx": 448,
+            "ty": 64
+        },
+        {
+            "x": 18,
+            "y": 6,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 4,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 12,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 13,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 14,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 15,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 17,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 18,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 19,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 18,
+            "y": 16,
+            "tx": 608,
+            "ty": 224
+        },
+        {
+            "x": 17,
+            "y": 11,
+            "tx": 0,
+            "ty": 0
+        },
+        {
+            "x": 18,
+            "y": 11,
+            "tx": 448,
+            "ty": 0
+        },
+        {
+            "x": 19,
+            "y": 3,
+            "tx": 448,
+            "ty": 512
+        },
+        {
+            "x": 20,
+            "y": 3,
+            "tx": 544,
+            "ty": 512
+        },
+        {
+            "x": 21,
+            "y": 3,
+            "tx": 544,
+            "ty": 512
+        },
+        {
+            "x": 22,
+            "y": 3,
+            "tx": 576,
+            "ty": 512
+        },
+        {
+            "x": 23,
+            "y": 2,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 25,
+            "y": 17,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 26,
+            "y": 17,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 27,
+            "y": 17,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 27,
+            "y": 16,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 28,
+            "y": 16,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 28,
+            "y": 15,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 29,
+            "y": 15,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 30,
+            "y": 14,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 14,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 13,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 13,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 12,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 19,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 21,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
             "x": 23,
             "y": 5,
-            "tx": 360,
-            "ty": 456,
-            "properties": {
-              "solid": false,
-              "solidTop": false,
-              "slippery": false,
-              "breakable": false,
-              "grabbable": false,
-              "isWater": false,
-              "isJelly": false,
-              "spawnPoint": false,
-              "enemy1": false,
-              "enemy2": false,
-              "enemy3": false
-            }
-          }
-        ]
-      }
-    }
-  ]
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 19,
+            "y": 8,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 19,
+            "y": 11,
+            "tx": 448,
+            "ty": 512
+        },
+        {
+            "x": 20,
+            "y": 11,
+            "tx": 480,
+            "ty": 512
+        },
+        {
+            "x": 20,
+            "y": 18,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 21,
+            "y": 17,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 20,
+            "y": 15,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 21,
+            "y": 11,
+            "tx": 576,
+            "ty": 512
+        },
+        {
+            "x": 22,
+            "y": 11,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 12,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 13,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 14,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 15,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 16,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 2,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 2,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 2,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 3,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 4,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 5,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 4,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 3,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 7,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 8,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 9,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 33,
+            "y": 10,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 10,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 10,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 30,
+            "y": 17,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 29,
+            "y": 18,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 31,
+            "y": 16,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 15,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 32,
+            "y": 14,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 24,
+            "y": 10,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 25,
+            "y": 9,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 26,
+            "y": 8,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 27,
+            "y": 7,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 28,
+            "y": 6,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 29,
+            "y": 5,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 29,
+            "y": 8,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 29,
+            "y": 9,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 29,
+            "y": 10,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 28,
+            "y": 10,
+            "tx": 576,
+            "ty": 512
+        },
+        {
+            "x": 27,
+            "y": 10,
+            "tx": 512,
+            "ty": 512
+        },
+        {
+            "x": 26,
+            "y": 10,
+            "tx": 448,
+            "ty": 512
+        },
+        {
+            "x": 25,
+            "y": 10,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 23,
+            "y": 12,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 24,
+            "y": 13,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 25,
+            "y": 14,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 25,
+            "y": 11,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 26,
+            "y": 12,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 27,
+            "y": 12,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 28,
+            "y": 12,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 27,
+            "y": 4,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 26,
+            "y": 3,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 28,
+            "y": 2,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 25,
+            "y": 2,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 25,
+            "y": 5,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 26,
+            "y": 5,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 7,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 22,
+            "y": 8,
+            "tx": 480,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 18,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 14,
+            "y": 17,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 13,
+            "y": 17,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 13,
+            "y": 16,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 15,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 11,
+            "y": 14,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 10,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 10,
+            "y": 12,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 12,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 8,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 8,
+            "y": 10,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 7,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 10,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 11,
+            "y": 5,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 4,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 13,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 3,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 4,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 4,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 5,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 5,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 4,
+            "y": 14,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 4,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 12,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 3,
+            "y": 2,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 4,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 1,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 3,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 4,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 1,
+            "y": 12,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 10,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 3,
+            "y": 10,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 4,
+            "y": 9,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 8,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 7,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 4,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 5,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 14,
+            "y": 6,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 14,
+            "y": 7,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 14,
+            "y": 8,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 8,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 13,
+            "y": 7,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 7,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 3,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 2,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 8,
+            "y": 2,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 8,
+            "y": 1,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 16,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 14,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 13,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 11,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 16,
+            "y": 16,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 14,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 14,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 13,
+            "y": 12,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 8,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 7,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 12,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 14,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 15,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 8,
+            "y": 15,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 14,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 15,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 16,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 10,
+            "y": 18,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 11,
+            "y": 17,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 16,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 15,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 5,
+            "y": 16,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 13,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 14,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 15,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 3,
+            "y": 16,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 3,
+            "y": 17,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 4,
+            "y": 18,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 2,
+            "y": 19,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 1,
+            "y": 17,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 17,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 6,
+            "y": 18,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 7,
+            "y": 18,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 8,
+            "y": 18,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 9,
+            "y": 2,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 2,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 15,
+            "y": 2,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 8,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 12,
+            "y": 9,
+            "tx": 96,
+            "ty": 96
+        },
+        {
+            "x": 23,
+            "y": 3,
+            "tx": 480,
+            "ty": 96
+        }
+    ],
+    "climbable": [],
+    "isWater": []
 }

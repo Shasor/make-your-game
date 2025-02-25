@@ -2,24 +2,21 @@
 import { Component } from './component.js';
 
 export class Camera extends Component {
-    constructor(viewportWidth, viewportHeight, worldWidth, worldHeight) {
-        super();
-        this.viewportWidth = viewportWidth;
-        this.viewportHeight = viewportHeight;
-        this.worldWidth = worldWidth;
-        this.worldHeight = worldHeight;
+    constructor() {
+        super('camera');
         this.x = 0;
         this.y = 0;
+        this.smoothing = 0.1; // Facteur de lissage pour un suivi plus fluide
     }
 
-    // Calculate camera position based on target position
+    // Méthode pour suivre une cible
     follow(targetX, targetY, targetWidth, targetHeight) {
-        // Center the camera on the target
-        this.x = targetX + (targetWidth / 2) - (this.viewportWidth / 2);
-        this.y = targetY + (targetHeight / 2) - (this.viewportHeight / 2);
+        // Calcul de la position cible au centre de l'entité
+        const targetCenterX = targetX + targetWidth / 2;
+        const targetCenterY = targetY + targetHeight / 2;
 
-        // Clamp camera position to world bounds
-        this.x = Math.max(0, Math.min(this.x, this.worldWidth - this.viewportWidth));
-        this.y = Math.max(0, Math.min(this.y, this.worldHeight - this.viewportHeight));
+        // Suivi avec lissage pour un mouvement plus fluide
+        this.x += (targetCenterX - this.x) * this.smoothing;
+        this.y += (targetCenterY - this.y) * this.smoothing;
     }
 }

@@ -9,6 +9,7 @@ export class CircleHitbox extends Component {
         this.collisionRadius = collisionRadius;
         this.meleeRadius = meleeRadius;
         this.rangedRadius = rangedRadius;
+        this.excludedFromRanged = false;
         this.circles = {
             collision: null,
             melee: null,

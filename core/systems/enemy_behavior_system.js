@@ -5,8 +5,9 @@ export class EnemyBehavior extends System {
     constructor() {
         super();
         this.detectionDelay = 0; // Délai avant de commencer à suivre le joueur
-        this.moveSpeed = 300; // Vitesse de déplacement
+        this.moveSpeed = 250; // Vitesse de déplacement
         this.detectedPlayers = new Map(); // Pour tracker les joueurs détectés
+        this.isDetect = {};
     }
 
     update(deltaTime) {
@@ -48,61 +49,48 @@ export class EnemyBehavior extends System {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             // Si le joueur est dans la zone de détection
-            if (distance <= enemyHitbox.rangedRadius + playerHitbox.collisionRadius) {
-                if (!this.detectedPlayers.has(enemy.uuid)) {
-                    this.detectedPlayers.set(enemy.uuid, {
-                        detectionTime: Date.now(),
-                        isTracking: false
-                    });
-                }
+            if (distance <= enemyHitbox.rangedRadius + playerHitbox.collisionRadius) this.isDetect = { enemy: enemy, bool: true };
 
-                const detectionData = this.detectedPlayers.get(enemy.uuid);
-
-                // Attendre le délai de détection
-                if (Date.now() - detectionData.detectionTime >= this.detectionDelay) {
-                    // Activer le mode "fantôme"
-                    enemyProperty.applyGravity = false;
-                    enemyProperty.movable = true;
-                    detectionData.isTracking = true;
-
-                    // Normaliser le vecteur de direction
-                    const length = Math.sqrt(dx * dx + dy * dy);
-                    const dirX = dx / length;
-                    const dirY = dy / length;
-
-                    // Mettre à jour la vélocité
-                    enemyVelocity.vx = dirX * this.moveSpeed;
-                    enemyVelocity.vy = -dirY * this.moveSpeed; // Inverse car Y est inversé dans le jeu
-
-                    // Mettre à jour l'animation et la direction du sprite
-                    if (dx < 0) {
-                        enemyAnimation.isFlipped = true;
-                    } else {
-                        enemyAnimation.isFlipped = false;
-                    }
-
-                    if (enemyAnimation.sequences.magic) {
-                        enemyAnimation.setState('magic');
-                    }
-                }
-            } else {
-                // Réinitialiser si le joueur sort de la zone
-                if (this.detectedPlayers.has(enemy.uuid)) {
-                    const detectionData = this.detectedPlayers.get(enemy.uuid);
-                    if (detectionData.isTracking) {
-                        // Remettre les propriétés par défaut
-                        enemyProperty.applyGravity = true;
-                        enemyProperty.movable = false;
-                        enemyVelocity.vx = 0;
-                        enemyVelocity.vy = 0;
-
-                        if (enemyAnimation.sequences.idle) {
-                            enemyAnimation.setState('idle');
-                        }
-                    }
-                    this.detectedPlayers.delete(enemy.uuid);
-                }
-            }
+            if (this.isDetect.bool && this.isDetect.enemy === enemy) this.track(enemy, enemyProperty, enemyVelocity, enemyAnimation, dx, dy);
         });
+    }
+
+    track(enemy, enemyProperty, enemyVelocity, enemyAnimation, dx, dy) {
+        if (!this.detectedPlayers.has(enemy.uuid)) {
+            this.detectedPlayers.set(enemy.uuid, {
+                detectionTime: Date.now(),
+                isTracking: false
+            });
+        }
+
+        const detectionData = this.detectedPlayers.get(enemy.uuid);
+
+        // Attendre le délai de détection
+        if (Date.now() - detectionData.detectionTime >= this.detectionDelay) {
+            // Activer le mode "fantôme"
+            enemyProperty.applyGravity = false;
+            enemyProperty.movable = true;
+            detectionData.isTracking = true;
+
+            // Normaliser le vecteur de direction
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const dirX = dx / length;
+            const dirY = dy / length;
+
+            // Mettre à jour la vélocité
+            enemyVelocity.vx = dirX * this.moveSpeed;
+            enemyVelocity.vy = -dirY * this.moveSpeed; // Inverse car Y est inversé dans le jeu
+
+            // Mettre à jour l'animation et la direction du sprite
+            if (dx < 0) {
+                enemyAnimation.isFlipped = true;
+            } else {
+                enemyAnimation.isFlipped = false;
+            }
+
+            if (enemyAnimation.sequences.magic) {
+                enemyAnimation.setState('magic');
+            }
+        }
     }
 }

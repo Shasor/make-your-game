@@ -12,6 +12,9 @@ export class MapLoader {
 
     async loadMap(mapPath) {
         try {
+            // Nettoyer d'abord le niveau existant
+            this.game.cleanupLevel();
+
             const response = await fetch(mapPath);
             const mapData = await response.json();
             return this.createMapFromData(mapData);
@@ -20,7 +23,30 @@ export class MapLoader {
         }
     }
 
+    // Convertit les indices de grille en pixels
+    gridToPixel(gridX, gridY) {
+        return {
+            x: gridX * TILE_CONSTANTS.SCALED_SIZE,
+            y: gridY * TILE_CONSTANTS.SCALED_SIZE
+        };
+    }
+
     createMapFromData(mapData) {
+        // Charger le background si spécifié
+        if (mapData.background && mapData.background.path) {
+            const gameWorld = document.querySelector('.game-world');
+            if (gameWorld) {
+                const mapWidth = mapData.metadata.width * TILE_CONSTANTS.SCALED_SIZE;
+                const mapHeight = mapData.metadata.height * TILE_CONSTANTS.SCALED_SIZE;
+
+                gameWorld.style.backgroundImage = `url(assets/${mapData.background.path})`;
+                gameWorld.style.backgroundSize = `${mapWidth}px ${mapHeight}px`;
+                gameWorld.style.backgroundPosition = '0 0';
+                gameWorld.style.backgroundRepeat = 'no-repeat';
+                gameWorld.style.width = `${mapWidth}px`;
+                gameWorld.style.height = `${mapHeight}px`;
+            }
+        }
         // Charger les tiles
         if (mapData.tiles) {
             mapData.tiles.forEach(tile => {
@@ -35,33 +61,34 @@ export class MapLoader {
             });
         }
 
-        // Créer le joueur au spawn point
+        // Créer le joueur au spawn point (maintenant en indices)
         if (mapData.spawnpoint && mapData.spawnpoint.length > 0) {
             const spawn = mapData.spawnpoint[0];
-            const player = createPlayer(spawn.x, spawn.y);
+            const pixelPos = this.gridToPixel(spawn.x, spawn.y);
+            const player = createPlayer(pixelPos.x, pixelPos.y);
             this.game.addEntity(player);
         }
 
-        // Charger les ennemis de type 1
-        if (mapData.enemy1) {
-            mapData.enemy1.forEach(enemyData => {
-                const enemy = createEnemy(enemyData.x, enemyData.y);
-                this.game.addEntity(enemy);
-            });
-        }
+        // Charger les différents types d'ennemis (maintenant en indices)
+        ['enemy1', 'enemy2', 'enemy3'].forEach(enemyType => {
+            if (mapData[enemyType]) {
+                mapData[enemyType].forEach(enemyData => {
+                    const pixelPos = this.gridToPixel(enemyData.x, enemyData.y);
+                    const enemy = createEnemy(pixelPos.x, pixelPos.y);
+                    this.game.addEntity(enemy);
+                });
+            }
+        });
 
-        // Charger les collectibles
+        // Charger les collectibles (déjà en indices)
         if (mapData.collectible) {
             mapData.collectible.forEach(collectible => {
-                // Convertir les coordonnées de la grille en pixels
-                const x = collectible.x * TILE_CONSTANTS.SCALED_SIZE;
-                const y = collectible.y * TILE_CONSTANTS.SCALED_SIZE;
-
+                const pixelPos = this.gridToPixel(collectible.x, collectible.y);
                 const collectibleEntity = createCollectable(
-                    x,          // position X en pixels
-                    y,          // position Y en pixels
-                    'coin',     // type
-                    1           // valeur
+                    pixelPos.x,
+                    pixelPos.y,
+                    collectible.type || 'coin',
+                    collectible.valeur || 1
                 );
                 this.game.addEntity(collectibleEntity);
             });
