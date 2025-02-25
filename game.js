@@ -56,8 +56,6 @@ export class Game {
   }
 
   async initAsync() {
-    console.log('Game initialization started');
-
     // Créer le menu original (pour compatibilité)
     createMenu(this, this.menu);
     this.container.appendChild(this.menu);
@@ -85,7 +83,6 @@ export class Game {
 
     // Charger la map
     await this.mapLoader.loadMap('./assets/maps/map1.json');
-    console.log('Game initialization completed');
   }
 
   addEntity(entity) {

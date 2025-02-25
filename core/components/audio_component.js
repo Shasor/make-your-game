@@ -63,7 +63,6 @@ export class Audio extends Component {
       }
 
       this.sounds.set(id, sound);
-      console.log(`Son ${id} ajouté avec succès (${path})`);
     } catch (error) {
       console.error(`Erreur lors de l'ajout du son ${id}:`, error);
     }
@@ -83,7 +82,6 @@ export class Audio extends Component {
       // Gestion spéciale du son de saut avec cooldown
       if (id === 'player_jump') {
         if (this.jumpSoundTimer > 0) {
-          console.log(`Son de saut en cooldown (${this.jumpSoundTimer.toFixed(2)}s restantes)`);
           return null;
         }
         // Définir le cooldown pour éviter les répétitions trop fréquentes
@@ -98,8 +96,6 @@ export class Audio extends Component {
           soundData.audio = new window.Audio(soundData.path);
           soundData.audio.preload = 'auto';
           soundData.audio.loop = soundData.loop;
-          console.log(`Audio créé pour ${id}: ${soundData.path}`);
-
           // Forcer le préchargement
           soundData.audio.load();
         } catch (audioError) {
@@ -135,7 +131,6 @@ export class Audio extends Component {
           if (playPromise !== undefined) {
             playPromise
               .then(() => {
-                console.log(`Son ${id} en lecture (nouvel objet audio)`);
                 this.currentSounds.set(id, {
                   audio: freshAudio,
                   timestamp: Date.now(),
@@ -164,21 +159,14 @@ export class Audio extends Component {
       if (this.currentSounds.has(id)) {
         this.stopSound(id);
       }
-
-      console.log(`Tentative de lecture du son ${id}:`, audio);
-
       // Démarrer la lecture avec gestion d'erreur
       try {
-        console.log(`Lecture du son ${id} en cours...`);
-
         // Use a promise to handle potential errors
         const playPromise = audio.play();
 
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
-              console.log(`Son ${id} en lecture`);
-
               // Gérer les fade-in si nécessaire
               if (options.fadeIn) {
                 audio.volume = 0;
