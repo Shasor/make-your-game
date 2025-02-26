@@ -8,6 +8,7 @@ export class EnemyBehavior extends System {
         this.moveSpeed = 250; // Vitesse de déplacement
         this.detectedPlayers = new Map(); // Pour tracker les joueurs détectés
         this.isDetect = {};
+        this.lastDetectionSoundTime = {}; // Pour éviter de jouer le son trop souvent
     }
 
     update(deltaTime) {
@@ -17,7 +18,6 @@ export class EnemyBehavior extends System {
         const playerPos = player.getComponent('position');
         const playerHitbox = player.getComponent('circle_hitbox');
         const playerVisual = player.getComponent('visual');
-
         if (!playerPos || !playerHitbox || !playerVisual) return;
 
         this.entities.forEach(enemy => {
@@ -29,6 +29,7 @@ export class EnemyBehavior extends System {
             const enemyVelocity = enemy.getComponent('velocity');
             const enemyProperty = enemy.getComponent('property');
             const enemyAnimation = enemy.getComponent('animation');
+            const enemyAudio = enemy.getComponent('audio');
 
             if (!enemyPos || !enemyHitbox || !enemyVisual || !enemyVelocity || !enemyProperty || !enemyAnimation) return;
 
@@ -49,10 +50,47 @@ export class EnemyBehavior extends System {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             // Si le joueur est dans la zone de détection
-            if (distance <= enemyHitbox.rangedRadius + playerHitbox.collisionRadius) this.isDetect = { enemy: enemy, bool: true };
+            const wasDetected = this.isDetect.bool && this.isDetect.enemy === enemy;
+            const isNowDetected = distance <= enemyHitbox.rangedRadius + playerHitbox.collisionRadius;
 
-            if (this.isDetect.bool && this.isDetect.enemy === enemy) this.track(enemy, enemyProperty, enemyVelocity, enemyAnimation, dx, dy);
+            if (isNowDetected) {
+                this.isDetect = { enemy: enemy, bool: true };
+
+                // Jouer le son de détection uniquement lors de la première détection
+                if (!wasDetected) {
+                    this.playDetectionSound(enemy, enemyAudio);
+                }
+            }
+
+            if (this.isDetect.bool && this.isDetect.enemy === enemy) {
+                this.track(enemy, enemyProperty, enemyVelocity, enemyAnimation, dx, dy);
+            }
         });
+    }
+
+    // Nouvelle méthode pour jouer le son de détection
+    playDetectionSound(enemy, enemyAudio) {
+        // Vérifier si l'ennemi a un composant audio
+        if (!enemyAudio) return;
+
+        // Éviter de jouer le son trop souvent (1.5 secondes minimum entre les sons)
+        const now = Date.now();
+        if (!this.lastDetectionSoundTime[enemy.uuid] ||
+            now - this.lastDetectionSoundTime[enemy.uuid] > 1500) {
+
+            // Mettre à jour le timestamp
+            this.lastDetectionSoundTime[enemy.uuid] = now;
+
+            // Émettre l'événement pour que le système audio puisse le gérer
+            if (this.game && this.game.eventBus) {
+                this.game.eventBus.emit('enemyDetection', enemy);
+            } else {
+                // Si pas d'event bus, tenter de jouer directement
+                if (enemyAudio.sounds.has('enemy_detection')) {
+                    enemyAudio.playSound('enemy_detection', { volume: 1.0 });
+                }
+            }
+        }
     }
 
     track(enemy, enemyProperty, enemyVelocity, enemyAnimation, dx, dy) {

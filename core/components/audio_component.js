@@ -4,217 +4,329 @@ import { Component } from './component.js';
 export class Audio extends Component {
     constructor() {
         super();
-        this.sounds = new Map(); // Map pour stocker les sons
-        this.currentSounds = new Map(); // Sons actuellement en lecture
-        this.lastAnimationState = null; // Pour suivre les changements d'animations
-        this.enemyDetectionTime = 0; // Temps de détection pour les ennemis
-        this.isMoving = false; // Suivi du mouvement
-        this.volume = 1.0; // Volume de base
-        this.jumpSoundCooldown = 0; // Cooldown pour le son de saut
-        this.jumpSoundTimer = 0; // Timer actuel
+        this.sounds = new Map(); // Store sound definitions
+        this.activeAudio = new Map(); // Store currently playing audio objects
+        this.lastAnimationState = null;
+
+        // Volume categories with updated default values
+        this.categories = {
+            'sfx': 1.0,      // Augmenté de 0.8 à 1.0 pour les effets sonores
+            'music': 0.4,    // Réduit de 0.5 à 0.2 pour la musique
+            'ambient': 0.6   // Légèrement augmenté de 0.2 à 0.3 pour l'ambiance
+        };
+
+        // Global volume
+        this.masterVolume = 1.0;
+
+        // Cooldown for frequently triggered sounds
+        this.soundCooldowns = new Map();
+
+        // Flag pour la rotation des thèmes musicaux
+        this.musicRotationEnabled = true;
+        this.currentMusicIndex = 0;
+        this.musicThemes = [];
+
+        // Timer pour les sons d'ambiance aléatoires
+        this.ambientTimer = 0;
+        this.nextAmbientTime = this._getRandomAmbientTime();
     }
 
     update(deltaTime) {
-        // Mettre à jour le timer pour le son de saut
-        if (this.jumpSoundTimer > 0) {
-            this.jumpSoundTimer -= deltaTime;
+        // Mettre à jour les cooldowns
+        this.soundCooldowns.forEach((value, key) => {
+            if (value > 0) {
+                this.soundCooldowns.set(key, value - deltaTime);
+            }
+        });
+
+        // Gérer le timer pour les sons d'ambiance
+        this.ambientTimer += deltaTime;
+        if (this.ambientTimer >= this.nextAmbientTime) {
+            this.ambientTimer = 0;
+            this.nextAmbientTime = this._getRandomAmbientTime();
+
+            // Déclencher un événement pour jouer un son d'ambiance aléatoire
+            if (window.game && window.game.eventBus) {
+                window.game.eventBus.emit('playRandomAmbient', {});
+            }
         }
     }
 
+    // Nouvelle méthode pour obtenir un délai aléatoire pour les sons d'ambiance
+    _getRandomAmbientTime() {
+        // Entre 30 et 120 secondes
+        return 30 + Math.random() * 90;
+    }
+
+    // Nouvelle méthode pour gérer la rotation des thèmes musicaux
+    setMusicRotation(enabled) {
+        this.musicRotationEnabled = enabled;
+    }
+
+    // Nouvelle méthode pour ajouter un thème musical à la rotation
+    addMusicTheme(id, path, options = {}) {
+        const theme = { id, path, options };
+        this.musicThemes.push(theme);
+
+        // Ajouter également comme un son normal
+        return this.addSound(id, path, options);
+    }
+
+    // Méthode pour passer au thème musical suivant
+    nextMusicTheme() {
+        if (this.musicThemes.length === 0) return null;
+
+        this.currentMusicIndex = (this.currentMusicIndex + 1) % this.musicThemes.length;
+        const theme = this.musicThemes[this.currentMusicIndex];
+
+        // Arrêter tous les thèmes musicaux en cours
+        this.activeAudio.forEach((audioObj, id) => {
+            if (audioObj.category === 'music' && id !== theme.id) {
+                this.stopSound(id, { fadeOut: 1000 });
+            }
+        });
+
+        // Jouer le nouveau thème après un court délai
+        setTimeout(() => {
+            this.playSound(theme.id, { fadeIn: 1000, ...theme.options });
+        }, 1200);
+
+        return theme;
+    }
+
     /**
-     * Ajoute un son à la collection
-     * @param {string} id - Identifiant du son
-     * @param {string} path - Chemin du fichier audio 
-     * @param {Object} options - Options (loop, volume, etc.)
+     * Set volume for a specific category
+     */
+    setCategoryVolume(category, volume) {
+        volume = Math.max(0, Math.min(1, volume));
+        this.categories[category] = volume;
+
+        // Update all playing sounds in this category
+        this.activeAudio.forEach((audioObj, id) => {
+            if (audioObj.category === category) {
+                this._updateAudioVolume(audioObj);
+            }
+        });
+    }
+
+    /**
+     * Set master volume
+     */
+    setMasterVolume(volume) {
+        volume = Math.max(0, Math.min(1, volume));
+        this.masterVolume = volume;
+
+        // Update all playing sounds
+        this.activeAudio.forEach(audioObj => {
+            this._updateAudioVolume(audioObj);
+        });
+    }
+
+    /**
+     * Calculate and apply the final volume to an audio object
+     */
+    _updateAudioVolume(audioObj) {
+        const finalVolume = audioObj.baseVolume *
+            this.categories[audioObj.category] *
+            this.masterVolume;
+        audioObj.element.volume = finalVolume;
+    }
+
+    /**
+     * Add a sound to the collection
      */
     addSound(id, path, options = {}) {
         try {
-            // Vérifier que le fichier existe
-            fetch(path, { method: 'HEAD' })
-                .then(response => {
-                    if (!response.ok) {
-                        console.warn(`Le fichier audio ${path} n'existe pas ou n'est pas accessible.`);
-                    }
-                })
-                .catch(error => {
-                    console.warn(`Erreur lors de la vérification du fichier ${path}:`, error);
-                });
-
             const sound = {
+                id,
                 path,
-                audio: null,
                 loop: options.loop || false,
                 volume: options.volume || 1.0,
-                fadeTime: options.fadeTime || 0,
                 category: options.category || 'sfx',
-                // Créer l'élément audio immédiatement pour les sons d'ambiance
-                preload: options.preload || (options.category === 'music')
+                cooldown: options.cooldown || 0
             };
 
-            // Précharger les sons d'ambiance
-            if (sound.preload) {
-                sound.audio = new window.Audio(path);
-                sound.audio.preload = 'auto';
-                sound.audio.loop = sound.loop;
-                sound.audio.volume = sound.volume;
+            this.sounds.set(id, sound);
 
-                // Forcer le préchargement
-                sound.audio.load();
+            // For music or ambient sounds, preload them
+            if (options.preload || options.category === 'music' || options.category === 'ambient') {
+                this._preloadSound(sound);
             }
 
-            this.sounds.set(id, sound);
-            console.log(`Son ${id} ajouté avec succès (${path})`);
+            return true;
         } catch (error) {
-            console.error(`Erreur lors de l'ajout du son ${id}:`, error);
+            console.error(`Error adding sound ${id}:`, error);
+            return false;
         }
     }
 
     /**
-     * Joue un son avec gestion spéciale pour certains sons
+     * Preload a sound to improve responsiveness
+     */
+    _preloadSound(sound) {
+        try {
+            const audio = new window.Audio(sound.path);
+            audio.preload = 'auto';
+            audio.load();
+        } catch (error) {
+            console.warn(`Failed to preload sound ${sound.id}:`, error);
+        }
+    }
+
+    /**
+     * Play a sound
      */
     playSound(id, options = {}) {
+        // Check if sound exists
+        if (!this.sounds.has(id)) {
+            console.warn(`Sound not found: ${id}`);
+            return null;
+        }
+
+        const soundData = this.sounds.get(id);
+
+        // Check cooldown (useful for jump, footsteps, etc.)
+        if (soundData.cooldown > 0) {
+            const currentCooldown = this.soundCooldowns.get(id) || 0;
+            if (currentCooldown > 0) {
+                return null;
+            }
+            this.soundCooldowns.set(id, soundData.cooldown);
+        }
+
+        // Stop existing instance of the same sound (except for ambient/music that can fade)
+        if (this.activeAudio.has(id) && soundData.category === 'sfx') {
+            this.stopSound(id);
+        }
+
         try {
-            // Vérifier si le son existe
-            if (!this.sounds.has(id)) {
-                console.warn(`Son non trouvé: ${id}`);
-                return null;
+            // Create a fresh audio element
+            const audioElement = new window.Audio(soundData.path);
+            audioElement.loop = options.loop !== undefined ? options.loop : soundData.loop;
+
+            // Set volume
+            const baseVolume = options.volume !== undefined ? options.volume : soundData.volume;
+
+            // Create audio object
+            const audioObj = {
+                element: audioElement,
+                id,
+                category: soundData.category,
+                baseVolume,
+                timestamp: Date.now()
+            };
+
+            // Set initial volume
+            this._updateAudioVolume(audioObj);
+
+            // Handle fade-in
+            if (options.fadeIn && options.fadeIn > 0) {
+                this._fadeIn(audioObj, options.fadeIn);
             }
 
-            // Gestion spéciale du son de saut avec cooldown
-            if (id === 'player_jump') {
-                if (this.jumpSoundTimer > 0) {
-                    console.log(`Son de saut en cooldown (${this.jumpSoundTimer.toFixed(2)}s restantes)`);
-                    return null;
-                }
-                // Définir le cooldown pour éviter les répétitions trop fréquentes
-                this.jumpSoundTimer = this.jumpSoundCooldown || 0.3; // 300ms par défaut
-            }
+            // Play the sound
+            const playPromise = audioElement.play();
 
-            const soundData = this.sounds.get(id);
+            // Handle play promise
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    // Add to active sounds
+                    this.activeAudio.set(id, audioObj);
+                }).catch(error => {
+                    console.error(`Error playing sound ${id}:`, error);
 
-            // Créer l'objet Audio s'il n'existe pas encore
-            if (!soundData.audio) {
-                try {
-                    soundData.audio = new window.Audio(soundData.path);
-                    soundData.audio.preload = 'auto';
-                    soundData.audio.loop = soundData.loop;
-                    console.log(`Audio créé pour ${id}: ${soundData.path}`);
-
-                    // Forcer le préchargement
-                    soundData.audio.load();
-                } catch (audioError) {
-                    console.error(`Erreur de création audio pour ${id}:`, audioError);
-                    return null;
-                }
-            }
-
-            const audio = soundData.audio;
-            if (!audio) {
-                console.error(`Objet audio non initialisé pour ${id}`);
-                return null;
-            }
-
-            // Solution pour les problèmes de lecture multiple
-            if (id.includes('player_run') || id.includes('idle') || id === 'music_ambient_1') {
-                // Pour ces sons en boucle, utiliser un nouvel objet audio à chaque fois
-                // pour éviter les problèmes de lecture simultanée
-                try {
-                    const freshAudio = new window.Audio(soundData.path);
-                    freshAudio.preload = 'auto';
-                    freshAudio.loop = soundData.loop;
-                    freshAudio.volume = (options.volume !== undefined) ? options.volume : soundData.volume;
-
-                    // Pour les sons ambiants, augmenter significativement le volume
-                    if (id.startsWith('music_ambient')) {
-                        freshAudio.volume = Math.min(1.0, freshAudio.volume * 3);
-                    }
-
-                    // Tenter de lire immédiatement
-                    const playPromise = freshAudio.play();
-
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => {
-                            console.log(`Son ${id} en lecture (nouvel objet audio)`);
-                            this.currentSounds.set(id, {
-                                audio: freshAudio,
-                                timestamp: Date.now()
-                            });
-                        }).catch(error => {
-                            console.error(`Erreur de lecture du son ${id} (objet frais):`, error);
-
-                            // Si l'erreur est liée à l'interaction utilisateur, ajouter un gestionnaire de clic
-                            if (error.name === 'NotAllowedError') {
-                                this.addUserInteractionHandler(freshAudio, id);
-                            }
-                        });
-                    }
-
-                    return freshAudio;
-                } catch (error) {
-                    console.error(`Erreur avec l'objet audio frais pour ${id}:`, error);
-                }
-            }
-
-            // Pour les autres sons
-            audio.volume = (options.volume !== undefined) ? options.volume : soundData.volume;
-
-            // Arrêter le son s'il est déjà en cours de lecture
-            if (this.currentSounds.has(id)) {
-                this.stopSound(id);
-            }
-
-            console.log(`Tentative de lecture du son ${id}:`, audio);
-
-            // Démarrer la lecture avec gestion d'erreur
-            try {
-                console.log(`Lecture du son ${id} en cours...`);
-
-                // Use a promise to handle potential errors
-                const playPromise = audio.play();
-
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log(`Son ${id} en lecture`);
-
-                        // Gérer les fade-in si nécessaire
-                        if (options.fadeIn) {
-                            audio.volume = 0;
-                            this.fadeIn(audio, options.volume || soundData.volume, options.fadeIn);
+                    // Handle autoplay restrictions
+                    if (error.name === 'NotAllowedError') {
+                        // Only add the interaction handler for important sounds like music
+                        if (soundData.category === 'music' || soundData.category === 'ambient') {
+                            this._addInteractionHandler(audioObj);
                         }
-
-                        // Stocker le son en cours de lecture
-                        this.currentSounds.set(id, {
-                            audio,
-                            timestamp: Date.now()
-                        });
-                    }).catch(error => {
-                        console.error(`Erreur de lecture du son ${id}:`, error);
-
-                        // Si l'erreur est liée à l'interaction utilisateur, ajouter un gestionnaire de clic
-                        if (error.name === 'NotAllowedError') {
-                            this.addUserInteractionHandler(audio, id);
-                        }
-                    });
-                }
-
-                return audio;
-            } catch (playError) {
-                console.error(`Erreur lors de la lecture du son ${id}:`, playError);
-                return null;
+                    }
+                });
             }
+
+            return audioObj;
         } catch (error) {
-            console.error(`Erreur globale dans playSound pour ${id}:`, error);
+            console.error(`Failed to play sound ${id}:`, error);
             return null;
         }
     }
 
-    // Ajoute un gestionnaire pour activer l'audio après une interaction utilisateur
-    addUserInteractionHandler(audio, id) {
-        console.warn(`Audio bloqué pour ${id} - Attente d'interaction utilisateur`);
+    /**
+     * Stop a sound
+     */
+    stopSound(id, options = {}) {
+        if (!this.activeAudio.has(id)) return false;
 
-        // Créer un bouton temporaire pour activer l'audio
+        const audioObj = this.activeAudio.get(id);
+
+        if (options.fadeOut && options.fadeOut > 0) {
+            this._fadeOut(audioObj, options.fadeOut);
+        } else {
+            audioObj.element.pause();
+            audioObj.element.currentTime = 0;
+            this.activeAudio.delete(id);
+        }
+
+        return true;
+    }
+
+    /**
+     * Fade in audio
+     */
+    _fadeIn(audioObj, duration) {
+        const element = audioObj.element;
+        const finalVolume = element.volume;
+
+        // Start from silent
+        element.volume = 0;
+
+        const startTime = Date.now();
+        const fadeInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const ratio = Math.min(elapsed / duration, 1);
+
+            element.volume = finalVolume * ratio;
+
+            if (ratio >= 1) {
+                clearInterval(fadeInterval);
+            }
+        }, 50);
+    }
+
+    /**
+     * Fade out audio
+     */
+    _fadeOut(audioObj, duration) {
+        const element = audioObj.element;
+        const startVolume = element.volume;
+        const startTime = Date.now();
+        const audioId = audioObj.id;
+
+        const fadeInterval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const ratio = Math.min(elapsed / duration, 1);
+
+            element.volume = startVolume * (1 - ratio);
+
+            if (ratio >= 1) {
+                element.pause();
+                element.currentTime = 0;
+                this.activeAudio.delete(audioId);
+                clearInterval(fadeInterval);
+            }
+        }, 50);
+    }
+
+    /**
+     * Add user interaction handler for autoplay-blocked sounds
+     */
+    _addInteractionHandler(audioObj) {
+        const id = audioObj.id;
+
+        // Create a button to enable audio
         const button = document.createElement('button');
-        button.textContent = 'Activer le son';
+        button.textContent = 'Enable Sound';
         button.style.position = 'fixed';
         button.style.top = '10px';
         button.style.left = '10px';
@@ -227,115 +339,27 @@ export class Audio extends Component {
         button.style.cursor = 'pointer';
 
         button.onclick = () => {
-            console.log(`Tentative de lecture audio après interaction utilisateur`);
-            audio.play().then(() => {
-                console.log(`Son activé avec succès`);
-                document.body.removeChild(button);
-            }).catch(error => {
-                console.error(`Échec de l'activation audio:`, error);
-            });
+            try {
+                const newElement = new window.Audio(audioObj.element.src);
+                newElement.loop = audioObj.element.loop;
+                newElement.volume = audioObj.element.volume;
+
+                const newObj = {
+                    ...audioObj,
+                    element: newElement
+                };
+
+                newElement.play().then(() => {
+                    this.activeAudio.set(id, newObj);
+                    document.body.removeChild(button);
+                }).catch(error => {
+                    console.error('Failed to enable audio:', error);
+                });
+            } catch (error) {
+                console.error('Error creating new audio element:', error);
+            }
         };
 
         document.body.appendChild(button);
-    }
-
-    /**
-     * Arrête un son
-     * @param {string} id - Identifiant du son à arrêter
-     * @param {Object} options - Options d'arrêt (fadeOut, etc.)
-     */
-    stopSound(id, options = {}) {
-        try {
-            if (!this.currentSounds.has(id)) return;
-
-            const soundInfo = this.currentSounds.get(id);
-            const audio = soundInfo.audio;
-
-            if (!audio) return;
-
-            if (options.fadeOut) {
-                this.fadeOut(audio, options.fadeOut);
-            } else {
-                if (typeof audio.pause === 'function') {
-                    audio.pause();
-                    if (audio.currentTime !== undefined) {
-                        audio.currentTime = 0;
-                    }
-                }
-            }
-
-            this.currentSounds.delete(id);
-        } catch (error) {
-            console.error(`Erreur lors de l'arrêt du son ${id}:`, error);
-        }
-    }
-
-    /**
-     * Animation de fade-in (augmentation progressive du volume)
-     */
-    fadeIn(audio, targetVolume, duration) {
-        try {
-            const startVolume = 0;
-            const volumeStep = targetVolume / (duration / 50);
-            let currentVolume = startVolume;
-
-            const fadeInterval = setInterval(() => {
-                currentVolume += volumeStep;
-                if (currentVolume >= targetVolume) {
-                    audio.volume = targetVolume;
-                    clearInterval(fadeInterval);
-                } else {
-                    audio.volume = currentVolume;
-                }
-            }, 50);
-        } catch (error) {
-            console.error("Erreur dans fadeIn:", error);
-        }
-    }
-
-    /**
-     * Animation de fade-out (diminution progressive du volume)
-     */
-    fadeOut(audio, duration) {
-        try {
-            const startVolume = audio.volume;
-            const volumeStep = startVolume / (duration / 50);
-            let currentVolume = startVolume;
-
-            const fadeInterval = setInterval(() => {
-                currentVolume -= volumeStep;
-                if (currentVolume <= 0) {
-                    audio.volume = 0;
-                    if (typeof audio.pause === 'function') {
-                        audio.pause();
-                        if (audio.currentTime !== undefined) {
-                            audio.currentTime = 0;
-                        }
-                    }
-                    clearInterval(fadeInterval);
-                } else {
-                    audio.volume = currentVolume;
-                }
-            }, 50);
-        } catch (error) {
-            console.error("Erreur dans fadeOut:", error);
-        }
-    }
-
-    /**
-     * Ajuste le volume global d'une catégorie de sons
-     * @param {string} category - Catégorie ('sfx', 'music', etc.)
-     * @param {number} volume - Nouveau volume (0.0 à 1.0)
-     */
-    setVolume(category, volume) {
-        try {
-            this.sounds.forEach((sound, id) => {
-                if (sound.category === category && sound.audio) {
-                    sound.audio.volume = volume;
-                }
-            });
-        } catch (error) {
-            console.error("Erreur dans setVolume:", error);
-        }
     }
 }

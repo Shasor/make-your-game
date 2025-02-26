@@ -19,6 +19,7 @@ import { EventBus } from './core/event_bus.js';
 import { Combat } from './core/systems/combat_system.js';
 import { createPlayer } from './create/player_create.js';
 import { AudioSystem } from './core/systems/audio_system.js';
+import { CutsceneSystem } from './core/systems/cutscene_system.js';
 
 export class Game {
     constructor(container) {
@@ -38,29 +39,90 @@ export class Game {
             coinsCollected: 0
         };
         this.collectibleSystem = null;
+        this.firstMapLoad = undefined; // Pour détecter le premier chargement
+        this.cutsceneSystem = null; // Référence au système de cinématiques
+        this.skipIntro = false; // Option pour sauter l'intro (à des fins de test)
 
         // Créer le menu principal
         this.mainMenu = createMainMenu(this, this.container);
 
+        // Ajouter un bouton pour sauter l'intro
+        this.addSkipIntroButton();
+
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                // Ne pas montrer le menu si une cinématique est en cours
+                if (this.cutsceneSystem && this.cutsceneSystem.isPlaying) {
+                    return;
+                }
+
                 this.paused = !this.paused;
-                this.mainMenu.style.display = this.paused ? 'flex' : 'none';
+
+                // Afficher le menu de pause (this.menu) et non le menu principal (this.mainMenu)
+                this.menu.style.visibility = this.paused ? 'visible' : 'hidden';
+
+                // Centrer le menu de pause
+                if (this.paused) {
+                    this.menu.style.display = 'flex';
+                    this.menu.style.top = `${window.innerHeight / 2 - this.menu.offsetHeight / 2}px`;
+                    this.menu.style.left = `${window.innerWidth / 2 - this.menu.offsetWidth / 2}px`;
+                } else {
+                    this.menu.style.display = 'none';
+                }
             }
         });
 
         this.initAsync().then(() => {
-            requestAnimationFrame((currentTime) => this.loop(currentTime));
+            // Utiliser bind pour préserver le contexte de this
+            const boundLoop = this.loop.bind(this);
+            requestAnimationFrame(boundLoop);
         });
+    }
+
+    addSkipIntroButton() {
+        // Ajouter un bouton dans le menu principal pour activer/désactiver l'intro
+        const skipIntroCheckbox = document.createElement('div');
+        skipIntroCheckbox.style.display = 'flex';
+        skipIntroCheckbox.style.alignItems = 'center';
+        skipIntroCheckbox.style.marginTop = '10px';
+        skipIntroCheckbox.style.fontFamily = "'Press Start 2P', sans-serif";
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = 'skip-intro';
+        checkbox.style.marginRight = '10px';
+        checkbox.checked = this.skipIntro;
+        checkbox.onchange = (e) => {
+            this.skipIntro = e.target.checked;
+        };
+
+        const label = document.createElement('label');
+        label.htmlFor = 'skip-intro';
+        label.textContent = 'Sauter l\'introduction';
+        label.style.color = 'black';
+        label.style.fontFamily = "'Press Start 2P', sans-serif";
+
+        skipIntroCheckbox.appendChild(checkbox);
+        skipIntroCheckbox.appendChild(label);
+
+        // Ajouter au menu juste avant le bouton démarrer
+        const menu = this.mainMenu.querySelector('div'); // Obtenir le div du menu à l'intérieur du container
+        const startBtn = menu.querySelector('button'); // Le premier bouton est "Start Game"
+        menu.insertBefore(skipIntroCheckbox, startBtn);
     }
 
     async initAsync() {
         console.log("Game initialization started");
 
-        // Créer le menu original (pour compatibilité)
-        createMenu(this, this.menu);
-        this.container.appendChild(this.menu);
-        this.menu.style.display = 'none'; // Cacher l'ancien menu
+        // Créer le menu de pause et le rendre accessible via this.pauseMenu
+        this.pauseMenu = document.createElement('div');
+        createMenu(this, this.pauseMenu);
+        this.container.appendChild(this.pauseMenu);
+        this.pauseMenu.style.visibility = 'hidden'; // Cacher le menu de pause par défaut
+        this.pauseMenu.style.display = 'none';
+
+        // Stocker une référence dans this.menu pour la compatibilité
+        this.menu = this.pauseMenu;
 
         // important order of systems !!
         this.addSystem(new Input());
@@ -81,9 +143,62 @@ export class Game {
         this.addSystem(new PhysicsSystem());
         this.addSystem(new Debug());
 
-        // Charger la map
-        await this.mapLoader.loadMap('./assets/maps/map1.json');
+        // Ajouter le système de cinématiques
+        this.cutsceneSystem = new CutsceneSystem();
+        this.addSystem(this.cutsceneSystem);
+
+        // Modifier le comportement du bouton Start dans le menu principal
+        this.setupStartButton();
+
+        // Charger la map mais ne pas la démarrer (la cinématique d'intro le fera)
+        await this.preloadMap('./assets/maps/map1.json');
+
         console.log("Game initialization completed");
+    }
+
+    // Précharge la map mais sans en faire la map active
+    async preloadMap(mapPath) {
+        try {
+            // Charger les données de la map, mais ne pas créer les entités
+            const response = await fetch(mapPath);
+            const mapData = await response.json();
+
+            // Stocker les données pour une utilisation ultérieure
+            this.preloadedMapData = mapData;
+            console.log("Map preloaded:", mapPath);
+        } catch (error) {
+            console.error('Error preloading map:', error);
+        }
+    }
+
+    setupStartButton() {
+        // Trouver le bouton de démarrage dans le menu principal
+        const startBtn = this.mainMenu.querySelector('button');
+        if (!startBtn) return;
+
+        // Remplacer l'action onclick par notre nouvelle logique
+        startBtn.onclick = () => {
+            // Cacher le menu principal
+            this.mainMenu.style.display = 'none';
+
+            if (this.skipIntro) {
+                // Sauter directement à la map1 si on choisit de sauter l'intro
+                this.mapLoader.loadMap('./assets/maps/map1.json').then(() => {
+                    this.paused = false;
+                });
+            } else {
+                // Sinon, lancer la cinématique d'introduction
+                if (this.cutsceneSystem) {
+                    this.cutsceneSystem.playCutscene('intro');
+                    // Le chargement de la map1 est géré par la cinématique
+                } else {
+                    // Fallback si le système de cinématique n'est pas disponible
+                    this.mapLoader.loadMap('./assets/maps/map1.json').then(() => {
+                        this.paused = false;
+                    });
+                }
+            }
+        };
     }
 
     addEntity(entity) {
@@ -117,6 +232,7 @@ export class Game {
         this.entities.delete(entity);
         this.systems.forEach((system) => system.removeEntity(entity));
     }
+
     handlePlayerDeath() {
         console.log(`Gestion de la mort du joueur en mode ${this.difficulty}`);
 
@@ -149,7 +265,7 @@ export class Game {
             this.removeEntity(oldPlayer);
         }
 
-        // // Créer un nouveau joueur à une position par défaut
+        // Créer un nouveau joueur à une position par défaut
         const player = createPlayer(190, 150);
         this.addEntity(player);
     }
@@ -255,19 +371,33 @@ export class Game {
 
     async restart() {
         this.cleanupLevel();
-        await this.mapLoader.loadMap('./assets/maps/map1.json');
+
+        // Si le système de cinématiques est disponible et qu'on ne saute pas l'intro
+        if (this.cutsceneSystem && !this.skipIntro) {
+            this.cutsceneSystem.playCutscene('intro');
+        } else {
+            // Sinon, charger directement la map1
+            await this.mapLoader.loadMap('./assets/maps/map1.json');
+        }
     }
 
     loop(currentTime) {
-        requestAnimationFrame((nextTime) => this.loop(nextTime));
-
-        if (this.paused) {
-            return;
-        }
+        // Utiliser bind pour préserver le contexte
+        requestAnimationFrame(this.loop.bind(this));
 
         let deltaTime = (currentTime - this.lastTime) / 1000;
         if (deltaTime > 0.1) deltaTime = 0.1;
         this.lastTime = currentTime;
+
+        // Si on est en pause mais qu'une cinématique est en cours,
+        // on doit quand même mettre à jour le système de cinématique
+        if (this.paused) {
+            // Vérifier si une cinématique est en cours
+            if (this.cutsceneSystem && this.cutsceneSystem.isPlaying) {
+                this.cutsceneSystem.update(deltaTime);
+            }
+            return;
+        }
 
         // Mettre à jour tous les systèmes
         this.systems.forEach((system) => {

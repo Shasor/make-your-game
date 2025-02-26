@@ -17,10 +17,52 @@ export class MapLoader {
 
             const response = await fetch(mapPath);
             const mapData = await response.json();
-            return this.createMapFromData(mapData);
+
+            // Créer les éléments de la map
+            this.createMapFromData(mapData);
+
+            // Vérifier si c'est le premier chargement (map1) au démarrage du jeu
+            const isInitialLoad = mapPath.includes('map1.json') && this.game.firstMapLoad === undefined;
+
+            // Marquer que le premier chargement a été effectué
+            if (isInitialLoad) {
+                this.game.firstMapLoad = true;
+            }
+
+            // Déclencher la musique uniquement si ce n'est pas le chargement initial
+            if (!isInitialLoad && mapData.music && mapData.music.path) {
+                console.log(`Chargement de la musique: ${mapData.music.path}`);
+                this.game.eventBus.emit('mapMusicChange', {
+                    path: mapData.music.path,
+                    volume: mapData.music.volume || 0.5,
+                    fadeIn: mapData.music.fadeIn || 1000,
+                    fadeOut: mapData.music.fadeOut || 1000,
+                    mapNumber: this.extractMapNumber(mapPath) // Ajout du numéro de map pour le système audio
+                });
+            }
+
+            // Réinitialiser l'audio après le chargement de la map
+            // même si on ne charge pas de musique
+            const audioSystem = Array.from(this.game.systems).find(
+                system => system.constructor.name === 'AudioSystem');
+
+            if (audioSystem) {
+                const mapNumber = this.extractMapNumber(mapPath);
+                console.log(`Réinitialisation audio pour map ${mapNumber}`);
+                audioSystem.reinitializeAudio(mapNumber);
+            }
+
+            return true;
         } catch (error) {
             console.error('Error loading map:', error);
+            return false;
         }
+    }
+
+    // Nouvelle méthode utilitaire pour extraire le numéro de map du chemin
+    extractMapNumber(mapPath) {
+        const mapNumberMatch = mapPath.match(/map(\d+)/);
+        return mapNumberMatch ? parseInt(mapNumberMatch[1]) : 1;
     }
 
     // Convertit les indices de grille en pixels
@@ -91,6 +133,16 @@ export class MapLoader {
                     collectible.valeur || 1
                 );
                 this.game.addEntity(collectibleEntity);
+            });
+        }
+        // Charger la musique de la map si elle existe
+        if (mapData.music && mapData.music.path) {
+            console.log(`Chargement du thème de la map: ${mapData.music.path}`);
+            this.game.eventBus.emit('mapMusicChange', {
+                path: mapData.music.path,
+                volume: mapData.music.volume || 0.5,
+                fadeIn: mapData.music.fadeIn || 1000,
+                fadeOut: mapData.music.fadeOut || 1000
             });
         }
     }

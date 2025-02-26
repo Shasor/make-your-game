@@ -7,6 +7,13 @@
     "background": {
         "path": "background/back-map1.webp"
     },
+    "music": {
+        "path": "./assets/sounds/music/map1_theme.wav",
+        "volume": 0.5,
+        "fadeIn": 1000,
+        "fadeOut": 1000,
+        "layered": true
+    },
     "spawnpoint": [
         {
             "x": 3,

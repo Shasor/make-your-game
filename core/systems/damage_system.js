@@ -23,7 +23,7 @@ export class Damage extends System {
         const currentTime = Date.now();
 
         this.entities.forEach(enemy => {
-            if (enemy === player) return;
+            if (enemy === player || enemy.getComponent('collectible')) return;
 
             const enemyHitbox = enemy.getComponent('circle_hitbox');
             const enemyPos = enemy.getComponent('position');

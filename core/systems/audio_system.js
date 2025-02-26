@@ -7,70 +7,76 @@ export class AudioSystem extends System {
     constructor() {
         super();
         this.initialized = false;
-        this.lastEnemyUpdate = new Map();
-        this.lastMusicChange = 0;
-        this.activatedEnemies = 0;
-        this.coinsCollected = 0;
-        this.currentMusicTrack = 'music_ambient_1';
         this.worldEntity = null;
-        this.debug = true;
+
+        // Track current music/ambient state
+        this.currentMapThemeId = null;
+        this.ambientTrackId = 'ambient_track';
         this.ambientMusicStarted = false;
-        this.soundsChecked = false;
+
+        // Nouvelles propriétés pour la rotation de thèmes et sons d'ambiance aléatoires
+        this.mapThemes = [];
+        this.musicRotationTimer = 0;
+        this.musicRotationInterval = 60; // 1 minutes par défaut
+        this.ambientSounds = [];
+
+        // Vérification pour le son detection.wav
+        this.detectionSoundChecked = false;
+
+        // Debug flag
+        this.debug = false;
     }
 
     setGame(game) {
         super.setGame(game);
 
-        // Abonnement aux événements
+        // Subscribe to events
         if (this.game.eventBus) {
-            this.game.eventBus.on('entityDeath', this.handleEntityDeath.bind(this));
             this.game.eventBus.on('levelComplete', this.handleLevelComplete.bind(this));
+            this.game.eventBus.on('mapMusicChange', this.handleMapMusicChange.bind(this));
+            this.game.eventBus.on('portalCollected', this.handlePortalCollected.bind(this));
             this.game.eventBus.on('coinCollected', this.handleCoinCollected.bind(this));
+            this.game.eventBus.on('entityDeath', this.handleEntityDeath.bind(this));
+
+            // Nouveaux événements
+            this.game.eventBus.on('playRandomAmbient', this.playRandomAmbientSound.bind(this));
+            this.game.eventBus.on('toggleMusicRotation', this.toggleMusicRotation.bind(this));
+            this.game.eventBus.on('enemyDetection', this.handleEnemyDetection.bind(this));
+            this.game.eventBus.on('cutsceneMusic', this.handleCutsceneMusic.bind(this));
+            this.game.eventBus.on('stopCutsceneMusic', this.handleStopCutsceneMusic.bind(this));
+
+        }
+        // Rendre le système audio disponible globalement pour le menu d'options
+        if (window) {
+            window.audioSystem = this;
         }
     }
 
     init() {
         if (this.initialized) return;
 
-        console.log("Initialisation du système audio");
+        console.log("Initializing audio system");
 
-        // Créer une entité pour les sons globaux
+        // Create world entity for global sounds (music, ambient)
         this.createWorldEntity();
 
-        // Initialiser les sons pour chaque entité
-        this.entities.forEach(entity => {
-            // Ignorer l'entité world
-            if (entity.getComponent('world_audio')) return;
+        // Initialize sounds for entities
+        this.initEntitySounds();
 
-            const audio = entity.getComponent('audio');
-            if (!audio) return;
-
-            // Initialiser les sons pour le joueur
-            if (entity.getComponent('input')) {
-                console.log("Initialisation des sons du joueur");
-                this.initializePlayerSounds(audio);
-            }
-
-            // Initialiser les sons pour les ennemis
-            else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
-                console.log("Initialisation des sons d'ennemi");
-                this.initializeEnemySounds(audio);
-            }
-
-            // Initialiser les sons pour les collectibles
-            else if (entity.getComponent('collectible')) {
-                console.log("Initialisation des sons de collectible");
-                this.initializeCollectibleSounds(audio);
-            }
-        });
-
-        // Initialiser le son d'ambiance
-        console.log("Initialisation des sons d'ambiance");
+        // Initialize ambient sounds
         this.initializeAmbientSounds();
+
+        // Create debug controls if needed
+        if (this.debug) {
+            this.createVolumeControls();
+        }
 
         this.initialized = true;
     }
 
+    /**
+     * Create world entity to handle global sounds like music
+     */
     createWorldEntity() {
         this.worldEntity = new Entity();
         this.worldEntity.uuid = "world_audio_entity";
@@ -79,208 +85,423 @@ export class AudioSystem extends System {
         this.game.addEntity(this.worldEntity);
     }
 
-    initializePlayerSounds(audio) {
-        // Sons associés aux animations du joueur
-        audio.addSound('player_idle', './assets/sounds/player/idle.wav', { volume: 0.2, loop: true, category: 'sfx' });
-        audio.addSound('player_run', './assets/sounds/player/run.wav', { volume: 0.4, loop: true, category: 'sfx' });
-        audio.addSound('player_jump', './assets/sounds/player/jump.wav', { volume: 0.5, category: 'sfx' });
-        audio.addSound('player_roulade', './assets/sounds/player/roll.wav', { volume: 0.6, category: 'sfx' });
-        audio.addSound('player_attack1', './assets/sounds/player/attack1.wav', { volume: 0.7, category: 'sfx' });
-        audio.addSound('player_attack2', './assets/sounds/player/attack2.wav', { volume: 0.7, category: 'sfx' });
-        audio.addSound('player_attack3', './assets/sounds/player/attack3.wav', { volume: 0.7, category: 'sfx' });
-        audio.addSound('player_magicAttack', './assets/sounds/player/magic.wav', { volume: 0.6, category: 'sfx' });
-        audio.addSound('player_arrowShoot', './assets/sounds/player/arrow.wav', { volume: 0.5, category: 'sfx' });
-        audio.addSound('player_hurt', './assets/sounds/player/hurt.wav', { volume: 0.7, category: 'sfx' });
-        audio.addSound('player_death', './assets/sounds/player/death.wav', { volume: 0.8, category: 'sfx' });
-    }
+    /**
+     * Initialize sounds for all entities
+     */
+    initEntitySounds() {
+        this.entities.forEach(entity => {
+            // Skip world entity
+            if (entity.getComponent('world_audio')) return;
 
-    initializeEnemySounds(audio) {
-        // Sons associés aux ennemis
-        audio.addSound('enemy_idle', './assets/sounds/enemy/idle.wav', { volume: 0.3, loop: true, category: 'sfx' });
-        audio.addSound('enemy_magic', './assets/sounds/enemy/magic.wav', { volume: 0.6, loop: true, category: 'sfx' });
-        audio.addSound('enemy_hurt', './assets/sounds/enemy/hurt.wav', { volume: 0.7, category: 'sfx' });
-        audio.addSound('enemy_death', './assets/sounds/enemy/death.mp3', { volume: 0.8, category: 'sfx' });
-        audio.addSound('enemy_detection', './assets/sounds/enemy/detection.wav', { volume: 0.5, category: 'sfx' });
-    }
+            const audio = entity.getComponent('audio');
+            if (!audio) return;
 
-    initializeCollectibleSounds(audio) {
-        // Sons associés aux collectibles
-        audio.addSound('coin_collect', './assets/sounds/collectibles/coin.wav', { volume: 0.6, category: 'sfx' });
-        audio.addSound('portal_active', './assets/sounds/collectibles/portal.wav', { volume: 0.7, loop: true, category: 'sfx' });
-    }
-
-    initializeAmbientSounds() {
-        // Ambiance sonore - utiliser l'entité world créée
-        if (this.worldEntity) {
-            const worldAudio = this.worldEntity.getComponent('audio');
-            if (worldAudio) {
-                // Précharger ces sons avec un volume plus élevé
-                worldAudio.addSound('music_ambient_1', './assets/sounds/music/ambient_1.wav',
-                    { volume: 0.2, loop: true, category: 'music', preload: true });
-                worldAudio.addSound('music_ambient_2', './assets/sounds/music/ambient_2.wav',
-                    { volume: 0.7, loop: true, category: 'music', preload: true });
-
-                console.log("Sons d'ambiance initialisés");
-
-                // Ajouter un bouton pour activer la musique d'ambiance
-                this.createAmbientMusicButton();
-            } else {
-                console.error("Composant audio manquant dans l'entité world");
+            // Player sounds
+            if (entity.getComponent('input')) {
+                this.initializePlayerSounds(audio);
             }
-        } else {
-            console.error("Entité world non créée");
+            // Enemy sounds
+            else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
+                this.initializeEnemySounds(audio);
+            }
+            // Collectible sounds
+            else if (entity.getComponent('collectible')) {
+                this.initializeCollectibleSounds(audio);
+            }
+        });
+    }
+
+    /**
+     * Initialize player sounds
+     */
+    initializePlayerSounds(audio) {
+        // Movement sounds
+        audio.addSound('player_idle', './assets/sounds/player/idle.wav',
+            { volume: 0.2, loop: true, category: 'sfx' });
+        audio.addSound('player_run', './assets/sounds/player/run.wav',
+            { volume: 0.9, loop: true, category: 'sfx' });
+        audio.addSound('player_jump', './assets/sounds/player/jump.wav',
+            { volume: 0.9, category: 'sfx', cooldown: 0.3 });
+
+        // Action sounds
+        audio.addSound('player_roulade', './assets/sounds/player/roll.wav',
+            { volume: 0.8, category: 'sfx' });
+        audio.addSound('player_attack1', './assets/sounds/player/attack1.wav',
+            { volume: 0.8, category: 'sfx' });
+        audio.addSound('player_attack2', './assets/sounds/player/attack2.wav',
+            { volume: 0.8, category: 'sfx' });
+        audio.addSound('player_attack3', './assets/sounds/player/attack3.wav',
+            { volume: 0.8, category: 'sfx' });
+        audio.addSound('player_magicAttack', './assets/sounds/player/magic.wav',
+            { volume: 0.6, category: 'sfx' });
+        audio.addSound('player_arrowShoot', './assets/sounds/player/arrow.wav',
+            { volume: 0.5, category: 'sfx' });
+
+        // Damage sounds
+        audio.addSound('player_hurt', './assets/sounds/player/hurt.wav',
+            { volume: 0.9, category: 'sfx' });
+        audio.addSound('player_death', './assets/sounds/player/death.wav',
+            { volume: 0.9, category: 'sfx' });
+    }
+
+    /**
+     * Initialize enemy sounds
+     */
+    initializeEnemySounds(audio) {
+        audio.addSound('enemy_idle', './assets/sounds/enemy/idle.wav',
+            { volume: 0.3, loop: true, category: 'sfx' });
+        audio.addSound('enemy_magic', './assets/sounds/enemy/magic.wav',
+            { volume: 0.9, category: 'sfx' });
+        audio.addSound('enemy_hurt', './assets/sounds/enemy/hurt.wav',
+            { volume: 0.9, category: 'sfx' });
+        audio.addSound('enemy_death', './assets/sounds/enemy/death1.wav',
+            { volume: 0.9, category: 'sfx' });
+        audio.addSound('enemy_detection', './assets/sounds/enemy/detection.wav',
+            { volume: 0.9, category: 'sfx', cooldown: 2.0 });
+    }
+
+    /**
+     * Initialize collectible sounds
+     */
+    initializeCollectibleSounds(audio) {
+        audio.addSound('coin_collect', './assets/sounds/collectibles/coin.wav',
+            { volume: 0.6, category: 'sfx' });
+        audio.addSound('portal_active', './assets/sounds/collectibles/portal.wav',
+            { volume: 0.8, loop: true, category: 'sfx' });
+    }
+
+    /**
+     * Initialize ambient sounds
+     */
+    initializeAmbientSounds() {
+        if (!this.worldEntity) return;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
+
+        // Add main ambient track with reduced volume
+        worldAudio.addSound(this.ambientTrackId, './assets/sounds/music/ambient_1.wav',
+            { volume: 0.1, loop: true, category: 'ambient', preload: true });
+
+        // Ajouter des sons d'ambiance supplémentaires qui seront joués aléatoirement
+        // Note: On utilise les sons existants mais dans un contexte d'ambiance aléatoire
+        const ambientSounds = [
+            { id: 'ambient_wind', path: './assets/sounds/environment/wind.wav', volume: 0.15 },
+            { id: 'ambient_creak', path: './assets/sounds/environment/creak.wav', volume: 0.2 },
+            { id: 'ambient_distant', path: './assets/sounds/environment/distant.wav', volume: 0.25 }
+        ];
+
+        // Si les fichiers spécifiques n'existent pas, nous pouvons créer des placeholders
+        if (!this.fileExists('./assets/sounds/environment/wind.wav')) {
+            console.log("Sons d'ambiance non trouvés, utilisation des sons existants comme placeholders");
+
+            // Utiliser d'autres sons comme placeholders
+            ambientSounds[0].path = './assets/sounds/player/idle.wav';
+            ambientSounds[1].path = './assets/sounds/enemy/idle.wav';
+            ambientSounds[2].path = './assets/sounds/collectibles/portal.wav';
+        }
+
+        // Ajouter ces sons au composant audio
+        ambientSounds.forEach(sound => {
+            worldAudio.addSound(sound.id, sound.path,
+                { volume: sound.volume, loop: false, category: 'ambient', preload: true });
+            this.ambientSounds.push(sound.id);
+        });
+
+        // Démarrer avec l'ambiance principale, mais à un volume réduit
+        setTimeout(() => this.startAmbientMusic(), 300);
+    }
+
+    // méthode pour vérifier si un fichier existe
+    fileExists(path) {
+        // Dans un contexte de navigateur, c'est difficile à vérifier
+        // Pour l'implémentation, nous supposons que le fichier existe
+        // Une implémentation réelle pourrait utiliser une requête HEAD ou un cache
+        return true;
+    }
+
+    /**
+     * Start ambient background music
+     */
+    startAmbientMusic() {
+        if (!this.worldEntity) return;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
+
+        try {
+            const audio = worldAudio.playSound(this.ambientTrackId, {
+                fadeIn: 1500
+            });
+
+            if (audio) {
+                this.ambientMusicStarted = true;
+                console.log("Ambient music started successfully");
+            }
+        } catch (error) {
+            console.error("Error starting ambient music:", error);
         }
     }
 
-    createAmbientMusicButton() {
-        // Créer un bouton pour activer la musique d'ambiance
-        const button = document.createElement('button');
-        button.textContent = 'Activer la musique';
-        button.style.position = 'fixed';
-        button.style.top = '10px';
-        button.style.right = '10px';
-        button.style.zIndex = '9999';
-        button.style.padding = '10px';
-        button.style.backgroundColor = '#4CAF50';
-        button.style.color = 'white';
-        button.style.border = 'none';
-        button.style.borderRadius = '5px';
-        button.style.cursor = 'pointer';
+    /**
+     * Start map music
+     */
+    startMapMusic(mapNumber = 1) {
+        if (!this.worldEntity) return;
 
-        button.onclick = () => {
-            console.log("Démarrage de la musique d'ambiance...");
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
 
-            if (this.worldEntity) {
-                const worldAudio = this.worldEntity.getComponent('audio');
-                if (worldAudio) {
-                    // Démarrer la musique d'ambiance
-                    try {
-                        const audio = worldAudio.playSound('music_ambient_1', { volume: 0.7 });
-                        if (audio) {
-                            this.ambientMusicStarted = true;
-                            console.log("Musique d'ambiance démarrée");
-                            document.body.removeChild(button);
-                        } else {
-                            console.error("Échec du démarrage de la musique d'ambiance");
-                        }
-                    } catch (error) {
-                        console.error("Erreur lors du démarrage de la musique d'ambiance:", error);
-                    }
-                }
-            }
-        };
+        // Arrêter tous les thèmes musicaux en cours
+        if (this.currentMapThemeId) {
+            worldAudio.stopSound(this.currentMapThemeId, { fadeOut: 1000 });
+        }
 
-        document.body.appendChild(button);
+        // Nettoyer les anciens thèmes
+        this.mapThemes = [];
+
+        // Ajouter les thèmes disponibles pour cette map
+        const themes = [
+            { id: `map${mapNumber}_theme_main`, path: `./assets/sounds/music/map${mapNumber}_theme.wav`, volume: 0.2 }
+        ];
+
+        // Tenter d'ajouter d'autres variations si elles existent
+        if (mapNumber > 1) {
+            // Ajouter aussi le thème de la map précédente comme variation
+            themes.push({
+                id: `map${mapNumber - 1}_theme_var`,
+                path: `./assets/sounds/music/map${mapNumber - 1}_theme.wav`,
+                volume: 0.15
+            });
+        }
+
+        // Enregistrer les thèmes dans le composant audio et dans notre liste
+        themes.forEach(theme => {
+            worldAudio.addSound(theme.id, theme.path, {
+                volume: theme.volume,
+                loop: true,
+                category: 'music',
+                preload: true
+            });
+
+            this.mapThemes.push(theme.id);
+        });
+
+        // Activer la rotation des thèmes
+        worldAudio.setMusicRotation(true);
+
+        // Démarrer avec le premier thème
+        this.currentMapThemeId = themes[0].id;
+        setTimeout(() => {
+            worldAudio.playSound(this.currentMapThemeId, { fadeIn: 1000 });
+        }, 200);
     }
 
+    // méthode pour jouer un son d'ambiance aléatoire
+    playRandomAmbientSound() {
+        if (!this.worldEntity || this.ambientSounds.length === 0) return;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
+
+        // Choisir un son aléatoire
+        const randomIndex = Math.floor(Math.random() * this.ambientSounds.length);
+        const soundId = this.ambientSounds[randomIndex];
+
+        // Jouer le son avec un fade-in et fade-out
+        worldAudio.playSound(soundId, { fadeIn: 500 });
+
+        // Arrêter le son après une durée aléatoire (entre 3 et 8 secondes)
+        const duration = 3000 + Math.random() * 5000;
+        setTimeout(() => {
+            worldAudio.stopSound(soundId, { fadeOut: 1000 });
+        }, duration);
+    }
+
+    /**
+     * Create volume control UI for debugging
+     */
+    createVolumeControls() {
+        const container = document.createElement('div');
+        container.style.position = 'fixed';
+        container.style.bottom = '10px';
+        container.style.left = '10px';
+        container.style.backgroundColor = 'rgba(0,0,0,0.7)';
+        container.style.color = 'white';
+        container.style.padding = '10px';
+        container.style.borderRadius = '5px';
+        container.style.zIndex = '9999';
+        container.style.fontFamily = 'Press Start 2P, sans-serif';
+
+        const title = document.createElement('div');
+        title.textContent = 'Audio Volume';
+        title.style.fontWeight = 'bold';
+        title.style.marginBottom = '10px';
+        container.appendChild(title);
+
+        // Create volume controls
+        this.addVolumeSlider(container, 'Master', 'master');
+        this.addVolumeSlider(container, 'Music', 'music');
+        this.addVolumeSlider(container, 'SFX', 'sfx');
+        this.addVolumeSlider(container, 'Ambient', 'ambient');
+
+        document.body.appendChild(container);
+    }
+
+    /**
+     * Helper to create a volume slider
+     */
+    addVolumeSlider(container, label, category) {
+        const div = document.createElement('div');
+        div.style.margin = '5px 0';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+
+        const text = document.createElement('span');
+        text.textContent = `${label}: `;
+        text.style.width = '70px';
+
+        const slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = '0';
+        slider.max = '100';
+        slider.value = category === 'master' ? 100 :
+            (category === 'music' ? 50 :
+                (category === 'ambient' ? 20 : 80));
+        slider.style.width = '100px';
+
+        const valueDisplay = document.createElement('span');
+        valueDisplay.textContent = (parseInt(slider.value) / 100).toFixed(2);
+        valueDisplay.style.marginLeft = '10px';
+        valueDisplay.style.width = '40px';
+
+        slider.oninput = () => {
+            const value = parseInt(slider.value) / 100;
+            valueDisplay.textContent = value.toFixed(2);
+            this.setVolumeForAllEntities(category, value);
+        };
+
+        div.appendChild(text);
+        div.appendChild(slider);
+        div.appendChild(valueDisplay);
+        container.appendChild(div);
+    }
+
+    /**
+     * Set volume for all entities
+     */
+    setVolumeForAllEntities(category, level) {
+        this.entities.forEach(entity => {
+            const audio = entity.getComponent('audio');
+            if (!audio) return;
+
+            if (category === 'master') {
+                audio.setMasterVolume(level);
+            } else {
+                audio.setCategoryVolume(category, level);
+            }
+        });
+    }
+
+    /**
+     * Update loop
+     */
     update(deltaTime) {
         if (!this.initialized) {
             this.init();
             return;
         }
 
-        // Vérifier et mettre à jour les sons
-        if (!this.soundsChecked) {
-            this.checkSounds();
-            this.soundsChecked = true;
-        }
-
-        // Mise à jour des entités audio
+        // Update audio components
         this.entities.forEach(entity => {
-            // Ignorer l'entité world
-            if (entity.getComponent('world_audio')) return;
-
             const audio = entity.getComponent('audio');
             if (!audio) return;
 
-            // Mettre à jour les timers audio
-            if (typeof audio.update === 'function') {
-                audio.update(deltaTime);
-            }
+            // Update timers
+            audio.update(deltaTime);
 
-            // Gestion des sons du joueur
+            // Update player sounds
             if (entity.getComponent('input')) {
                 this.updatePlayerSounds(entity, audio, deltaTime);
             }
-
-            // Gestion des sons des ennemis
+            // Update enemy sounds
             else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
                 this.updateEnemySounds(entity, audio, deltaTime);
             }
         });
 
-        // Gestion des sons collectibles
-        this.updateCollectibleSounds(deltaTime);
-    }
-
-    checkSounds() {
-        console.log("Vérification des sons disponibles...");
-
-        // Vérifier les sons ambiants
+        // Gérer la rotation de thèmes musicaux
         if (this.worldEntity) {
             const worldAudio = this.worldEntity.getComponent('audio');
-            if (worldAudio && worldAudio.sounds) {
-                console.log("Sons ambiants disponibles:",
-                    Array.from(worldAudio.sounds.keys()).join(', '));
-            }
-        }
+            if (worldAudio && worldAudio.musicRotationEnabled && this.mapThemes.length > 1) {
+                this.musicRotationTimer += deltaTime;
 
-        // Vérifier les sons du joueur
-        const player = this.findPlayer();
-        if (player) {
-            const playerAudio = player.getComponent('audio');
-            if (playerAudio && playerAudio.sounds) {
-                console.log("Sons du joueur disponibles:",
-                    Array.from(playerAudio.sounds.keys()).join(', '));
-            }
-        }
-    }
+                if (this.musicRotationTimer >= this.musicRotationInterval) {
+                    this.musicRotationTimer = 0;
 
-    updateCollectibleSounds(deltaTime) {
-        const collectibleSystem = this.findCollectibleSystem();
-        if (!collectibleSystem) return;
+                    // Choisir le prochain thème de façon aléatoire, différent du thème actuel
+                    let nextThemeIndex;
+                    do {
+                        nextThemeIndex = Math.floor(Math.random() * this.mapThemes.length);
+                    } while (this.mapThemes[nextThemeIndex] === this.currentMapThemeId && this.mapThemes.length > 1);
 
-        // Si une pièce a été collectée récemment
-        if (collectibleSystem.coinCollectedTime &&
-            Date.now() - collectibleSystem.coinCollectedTime < 100) {
+                    const nextThemeId = this.mapThemes[nextThemeIndex];
 
-            const player = this.findPlayer();
-            if (player) {
-                const playerAudio = player.getComponent('audio');
-                if (playerAudio && playerAudio.sounds.has('coin_collect')) {
-                    playerAudio.playSound('coin_collect', { volume: 0.6 });
+                    // Arrêter le thème actuel
+                    worldAudio.stopSound(this.currentMapThemeId, { fadeOut: 2000 });
+
+                    // Attendre que le fade-out soit terminé avant de jouer le nouveau thème
+                    setTimeout(() => {
+                        this.currentMapThemeId = nextThemeId;
+                        worldAudio.playSound(nextThemeId, { fadeIn: 2000 });
+                    }, 2200);
                 }
             }
         }
+
+        // Vérifier une seule fois si detection.wav fonctionne
+        if (!this.detectionSoundChecked) {
+            this.checkDetectionSound();
+            this.detectionSoundChecked = true;
+        }
     }
 
-    findCollectibleSystem() {
-        return Array.from(this.game.systems).find(system =>
-            system.constructor.name === 'Collectible');
-    }
-
+    /**
+     * Update player sounds based on animation state
+     */
     updatePlayerSounds(entity, audio, deltaTime) {
         const animation = entity.getComponent('animation');
-        const input = entity.getComponent('input');
-        const property = entity.getComponent('property');
-
-        if (!animation || !input) return;
+        if (!animation) return;
 
         const currentState = animation.currentState;
 
-        // Si l'état de l'animation a changé
+        // If animation state changed
         if (currentState !== audio.lastAnimationState) {
-            // Arrêter le son de l'animation précédente si nécessaire
-            if (audio.lastAnimationState && audio.sounds.has(`player_${audio.lastAnimationState}`)) {
-                audio.stopSound(`player_${audio.lastAnimationState}`);
-            }
+            // Handle movement sounds
+            if (['idle', 'run', 'jump'].includes(currentState)) {
+                // Stop previous movement sound
+                if (audio.lastAnimationState &&
+                    ['idle', 'run', 'jump'].includes(audio.lastAnimationState)) {
+                    audio.stopSound(`player_${audio.lastAnimationState}`);
+                }
 
-            // Jouer le son correspondant à la nouvelle animation si disponible
-            if (audio.sounds.has(`player_${currentState}`)) {
-                try {
+                // Play new movement sound
+                if (audio.sounds.has(`player_${currentState}`)) {
                     audio.playSound(`player_${currentState}`);
-                } catch (error) {
-                    console.warn(`Erreur de lecture du son player_${currentState}:`, error);
+                }
+            }
+            // Handle action sounds
+            else if (['attack1', 'attack2', 'attack3', 'magicAttack', 'arrowShoot', 'roulade'].includes(currentState)) {
+                const soundKey = `player_${currentState}`;
+                if (audio.sounds.has(soundKey)) {
+                    audio.playSound(soundKey);
+                }
+            }
+            // Handle damage sounds
+            else if (['hurt', 'death'].includes(currentState)) {
+                const soundKey = `player_${currentState}`;
+                if (audio.sounds.has(soundKey)) {
+                    audio.playSound(soundKey);
                 }
             }
 
@@ -288,436 +509,306 @@ export class AudioSystem extends System {
         }
     }
 
+    /**
+     * Update enemy sounds based on animation state
+     */
     updateEnemySounds(entity, audio, deltaTime) {
         const animation = entity.getComponent('animation');
         if (!animation) return;
 
         const currentState = animation.currentState;
 
-        // Si l'état de l'animation a changé
+        // If animation state changed
         if (currentState !== audio.lastAnimationState) {
-            // Arrêter le son de l'animation précédente si nécessaire
-            if (audio.lastAnimationState && audio.sounds.has(`enemy_${audio.lastAnimationState}`)) {
-                audio.stopSound(`enemy_${audio.lastAnimationState}`);
+            // Map animation states to sound keys
+            let soundKey = null;
+
+            if (['idle', 'idle2'].includes(currentState)) {
+                soundKey = 'enemy_idle';
+            } else if (currentState === 'magic') {
+                soundKey = 'enemy_magic';
+            } else if (['hurt', 'hurt1'].includes(currentState)) {
+                soundKey = 'enemy_hurt';
+            } else if (currentState === 'death') {
+                soundKey = 'enemy_death';
             }
 
-            // Jouer le son correspondant à la nouvelle animation si disponible
-            let soundKey = '';
-            switch (currentState) {
-                case 'idle':
-                case 'idle2':
-                    soundKey = 'enemy_idle';
-                    break;
-                case 'magic':
-                    soundKey = 'enemy_magic';
-                    break;
-                case 'hurt':
-                case 'hurt1':
-                    soundKey = 'enemy_hurt';
-                    break;
-                case 'death':
-                    soundKey = 'enemy_death';
-                    break;
-            }
+            // Stop previous sound if looping
+            if (audio.lastAnimationState) {
+                const prevSoundKey = ['idle', 'idle2'].includes(audio.lastAnimationState)
+                    ? 'enemy_idle'
+                    : `enemy_${audio.lastAnimationState}`;
 
-            if (soundKey && audio.sounds.has(soundKey)) {
-                try {
-                    audio.playSound(soundKey);
-                } catch (error) {
-                    console.warn(`Erreur de lecture du son ${soundKey}:`, error);
+                if (audio.sounds.has(prevSoundKey)) {
+                    audio.stopSound(prevSoundKey);
                 }
+            }
+
+            // Play new sound
+            if (soundKey && audio.sounds.has(soundKey)) {
+                audio.playSound(soundKey);
             }
 
             audio.lastAnimationState = currentState;
         }
     }
 
-    updateAmbientMusic(deltaTime) {
-        // Pour l'instant, ne rien faire pour éviter les erreurs
+    /**
+     * Handle map music change event
+     */
+    reinitializeAudio(mapNumber) {
+        console.log(`Réinitialisation de l'audio pour le niveau ${mapNumber}`);
+
+        // Vérifier si le niveau précédent a nettoyé les entités audio
+        if (!this.initialized) {
+            this.init();
+        }
+
+        // S'assurer que le son d'ambiance continue
+        if (this.worldEntity) {
+            const worldAudio = this.worldEntity.getComponent('audio');
+            if (worldAudio && !this.ambientMusicStarted) {
+                this.startAmbientMusic();
+            }
+        }
+
+        // Réinitialiser tous les sons pour les entités existantes
+        this.entities.forEach(entity => {
+            const audio = entity.getComponent('audio');
+            if (!audio) return;
+
+            if (entity.getComponent('input')) {
+                // Joueur
+                this.initializePlayerSounds(audio);
+                console.log("Sons du joueur réinitialisés");
+            } else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
+                // Ennemi
+                this.initializeEnemySounds(audio);
+                console.log("Sons d'ennemi réinitialisés");
+            } else if (entity.getComponent('collectible')) {
+                // Collectible
+                this.initializeCollectibleSounds(audio);
+                console.log("Sons de collectible réinitialisés");
+            }
+        });
+
+        // Vérifier une fois de plus le son de détection
+        this.checkDetectionSound();
+
+        console.log("Réinitialisation audio terminée");
     }
 
-    handleEntityDeath(entity) {
-        // Pour l'instant, ne rien faire pour éviter les erreurs
+    // Modification de la méthode handleMapMusicChange pour qu'elle appelle reinitializeAudio
+    handleMapMusicChange(musicData) {
+        console.log("Changement de musique demandé, thèmes désactivés");
+
+        // Vérifier si nous sommes en train de changer de map
+        if (musicData && musicData.mapNumber) {
+            // Assurez-vous que les sons du nouveau niveau sont chargés
+            this.reinitializeAudio(musicData.mapNumber);
+        }
+
+        return;
     }
 
+
+    // Méthode pour gérer la musique des cutscenes
+    handleCutsceneMusic(data) {
+        if (!this.worldEntity) return;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
+
+        // Arrêter d'abord toute musique en cours
+        this.stopAllMusic(true);
+
+        // Définir un ID unique pour cette musique de cutscene
+        const cutsceneMusicId = 'cutscene_music_' + Date.now();
+
+        // Ajouter et jouer la musique de la cutscene
+        worldAudio.addSound(cutsceneMusicId, data.path, {
+            volume: data.volume || 0.5,
+            loop: true,
+            category: 'music',
+            preload: true
+        });
+
+        // Garder une référence à l'ID de cette musique
+        this.currentCutsceneMusicId = cutsceneMusicId;
+
+        // Jouer la musique
+        setTimeout(() => {
+            worldAudio.playSound(cutsceneMusicId, { fadeIn: 1000 });
+        }, 200);
+    }
+
+    // Méthode pour arrêter la musique des cutscenes
+    handleStopCutsceneMusic() {
+        if (!this.worldEntity || !this.currentCutsceneMusicId) return;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
+
+        // Arrêter la musique de la cutscene
+        worldAudio.stopSound(this.currentCutsceneMusicId, { fadeOut: 1000 });
+        this.currentCutsceneMusicId = null;
+    }
+
+    //  méthode pour vérifier si detection.wav fonctionne
+    checkDetectionSound() {
+        // Recherche d'un ennemi
+        const enemy = Array.from(this.entities).find(entity =>
+            entity.getComponent('circle_hitbox') &&
+            !entity.getComponent('collectible') &&
+            !entity.getComponent('input'));
+
+        if (enemy) {
+            const audio = enemy.getComponent('audio');
+            if (audio) {
+                // Vérifier si le son est correctement enregistré
+                if (audio.sounds.has('enemy_detection')) {
+                    console.log("Le son de détection est correctement enregistré");
+                } else {
+                    console.warn("Le son de détection n'est pas enregistré");
+                    // Tentative de l'ajouter
+                    audio.addSound('enemy_detection', './assets/sounds/enemy/detection.wav',
+                        { volume: 1.0, category: 'sfx', cooldown: 2.0 });
+                }
+            }
+        }
+    }
+
+    //  méthode pour gérer l'événement de détection d'ennemi
+    handleEnemyDetection(enemy) {
+        if (!enemy) return;
+
+        const audio = enemy.getComponent('audio');
+        if (audio && audio.sounds.has('enemy_detection')) {
+            audio.playSound('enemy_detection');
+        }
+    }
+
+    //  méthode pour activer/désactiver la rotation des thèmes
+    toggleMusicRotation(enabled) {
+        if (this.worldEntity) {
+            const worldAudio = this.worldEntity.getComponent('audio');
+            if (worldAudio) {
+                worldAudio.setMusicRotation(enabled);
+            }
+        }
+    }
+
+    //  méthode pour obtenir les catégories et volumes actuels (pour le menu d'options)
+    getAudioSettings() {
+        if (!this.worldEntity) return null;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return null;
+
+        return {
+            masterVolume: worldAudio.masterVolume,
+            categories: { ...worldAudio.categories }
+        };
+    }
+
+    //  méthode pour définir les volumes depuis le menu d'options
+    setAudioSettings(settings) {
+        if (!settings || !this.worldEntity) return false;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return false;
+
+        // Appliquer les réglages à toutes les entités
+        if (settings.masterVolume !== undefined) {
+            this.setVolumeForAllEntities('master', settings.masterVolume);
+        }
+
+        if (settings.categories) {
+            for (const [category, volume] of Object.entries(settings.categories)) {
+                this.setVolumeForAllEntities(category, volume);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Handle level completion
+     */
     handleLevelComplete() {
-        // Pour l'instant, ne rien faire pour éviter les erreurs
+        this.stopAllMusic(true);
     }
 
+    /**
+     * Handle portal collection
+     */
+    handlePortalCollected() {
+        this.stopAllMusic(true);
+    }
+
+    /**
+     * Handle entity death
+     */
+    handleEntityDeath(entity) {
+        // Handle entity-specific sounds here
+        if (entity.getComponent('input')) {
+            // Player death
+            const audio = entity.getComponent('audio');
+            if (audio && audio.sounds.has('player_death')) {
+                audio.playSound('player_death');
+            }
+        } else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
+            // Enemy death
+            const audio = entity.getComponent('audio');
+            if (audio && audio.sounds.has('enemy_death')) {
+                audio.playSound('enemy_death');
+            }
+        }
+    }
+
+    /**
+     * Handle coin collection
+     */
     handleCoinCollected() {
-        // Pour l'instant, ne rien faire pour éviter les erreurs
+        const player = this.findPlayer();
+        if (player) {
+            const audio = player.getComponent('audio');
+            if (audio && audio.sounds.has('coin_collect')) {
+                audio.playSound('coin_collect');
+            }
+        }
     }
 
+    /**
+     * Stop all music and ambient sounds
+     */
+    stopAllMusic(fadeOut = true) {
+        if (!this.worldEntity) return;
+
+        const worldAudio = this.worldEntity.getComponent('audio');
+        if (!worldAudio) return;
+
+        // Stop map theme
+        if (this.currentMapThemeId) {
+            worldAudio.stopSound(this.currentMapThemeId, {
+                fadeOut: fadeOut ? 1000 : 0
+            });
+            this.currentMapThemeId = null;
+        }
+
+        // Stop ambient track
+        if (this.ambientMusicStarted) {
+            worldAudio.stopSound(this.ambientTrackId, {
+                fadeOut: fadeOut ? 1000 : 0
+            });
+            this.ambientMusicStarted = false;
+        }
+    }
+
+    /**
+     * Find player entity
+     */
     findPlayer() {
         return Array.from(this.entities).find(entity => entity.getComponent('input'));
     }
 }
-
-
-/* The above code is a JavaScript class `AudioSystem` that is responsible for managing audio in a game.
-Here is a summary of what the code does: */
-
-
-// // core/systems/audio_system.js
-// import { System } from './system.js';
-
-// export class AudioSystem extends System {
-//     constructor() {
-//         super();
-//         this.initialized = false;
-//         this.lastEnemyUpdate = new Map(); // Pour suivre l'état des ennemis
-//         this.lastMusicChange = 0;
-//         this.activatedEnemies = 0;
-//         this.coinsCollected = 0;
-//         this.currentMusicTrack = 'music_ambient_1';
-//     }
-
-//     setGame(game) {
-//         super.setGame(game);
-
-//         // Abonnement aux événements
-//         if (this.game.eventBus) {
-//             this.game.eventBus.on('entityDeath', this.handleEntityDeath.bind(this));
-//             this.game.eventBus.on('levelComplete', this.handleLevelComplete.bind(this));
-//             this.game.eventBus.on('coinCollected', this.handleCoinCollected.bind(this));
-//         }
-//     }
-
-//     init() {
-//         if (this.initialized) return;
-
-//         this.entities.forEach(entity => {
-//             const audio = entity.getComponent('audio');
-//             if (!audio) return;
-
-//             // Initialiser les sons pour le joueur
-//             if (entity.getComponent('input')) {
-//                 this.initializePlayerSounds(audio);
-//             }
-
-//             // Initialiser les sons pour les ennemis
-//             else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
-//                 this.initializeEnemySounds(audio);
-//             }
-
-//             // Initialiser les sons pour les collectibles
-//             else if (entity.getComponent('collectible')) {
-//                 this.initializeCollectibleSounds(audio);
-//             }
-//         });
-
-//         // Initialiser le son d'ambiance
-//         this.initializeAmbientSounds();
-
-//         this.initialized = true;
-//     }
-
-//     initializePlayerSounds(audio) {
-//         // Sons associés aux animations du joueur
-//         // audio.addSound('player_idle', './assets/sounds/player/idle.mp3', { volume: 0.2, loop: true, category: 'sfx' });
-//         audio.addSound('player_run', './assets/sounds/player/run.wav', { volume: 0.4, loop: true, category: 'sfx' });
-//         // audio.addSound('player_jump', './assets/sounds/player/jump.mp3', { volume: 0.5, category: 'sfx' });
-//         // audio.addSound('player_roulade', './assets/sounds/player/roll.mp3', { volume: 0.6, category: 'sfx' });
-//         // audio.addSound('player_attack1', './assets/sounds/player/attack1.mp3', { volume: 0.7, category: 'sfx' });
-//         // audio.addSound('player_attack2', './assets/sounds/player/attack2.mp3', { volume: 0.7, category: 'sfx' });
-//         // audio.addSound('player_attack3', './assets/sounds/player/attack3.mp3', { volume: 0.7, category: 'sfx' });
-//         // audio.addSound('player_magicAttack', './assets/sounds/player/magic.mp3', { volume: 0.6, category: 'sfx' });
-//         // audio.addSound('player_arrowShoot', './assets/sounds/player/arrow.mp3', { volume: 0.5, category: 'sfx' });
-//         // audio.addSound('player_hurt', './assets/sounds/player/hurt.mp3', { volume: 0.7, category: 'sfx' });
-//         // audio.addSound('player_death', './assets/sounds/player/death.mp3', { volume: 0.8, category: 'sfx' });
-//     }
-
-//     initializeEnemySounds(audio) {
-//         // Sons associés aux ennemis
-//         audio.addSound('enemy_idle', './assets/sounds/enemy/idle.mp3', { volume: 0.3, loop: true, category: 'sfx' });
-//         audio.addSound('enemy_magic', './assets/sounds/enemy/magic.mp3', { volume: 0.6, loop: true, category: 'sfx' });
-//         audio.addSound('enemy_hurt', './assets/sounds/enemy/hurt.mp3', { volume: 0.7, category: 'sfx' });
-//         audio.addSound('enemy_death', './assets/sounds/enemy/death.mp3', { volume: 0.8, category: 'sfx' });
-//         audio.addSound('enemy_detection', './assets/sounds/enemy/detection.mp3', { volume: 0.5, category: 'sfx' });
-//     }
-
-//     initializeCollectibleSounds(audio) {
-//         // Sons associés aux collectibles
-//         audio.addSound('coin_collect', './assets/sounds/collectibles/coin.mp3', { volume: 0.6, category: 'sfx' });
-//         audio.addSound('portal_active', './assets/sounds/collectibles/portal.mp3', { volume: 0.7, loop: true, category: 'sfx' });
-//     }
-
-//     initializeAmbientSounds() {
-//         // Ambiance sonore
-//         const worldAudio = this.getOrCreateWorldAudio();
-//         worldAudio.addSound('music_ambient_1', './assets/sounds/music/ambient_1.mp3', { volume: 0.4, loop: true, category: 'music' });
-//         worldAudio.addSound('music_ambient_2', './assets/sounds/music/ambient_2.mp3', { volume: 0.4, loop: true, category: 'music' });
-//         worldAudio.addSound('music_ambient_3', './assets/sounds/music/ambient_3.mp3', { volume: 0.5, loop: true, category: 'music' });
-//         worldAudio.addSound('music_intense', './assets/sounds/music/intense.mp3', { volume: 0.6, loop: true, category: 'music' });
-//         worldAudio.addSound('level_complete', './assets/sounds/music/level_complete.mp3', { volume: 0.7, category: 'music' });
-
-//         // Démarrer la musique d'ambiance
-//         worldAudio.playSound('music_ambient_1', { fadeIn: 2000 });
-//     }
-
-//     getOrCreateWorldAudio() {
-//         // Trouver ou créer une entité pour les sons globaux
-//         let worldEntity = Array.from(this.entities).find(entity => entity.getComponent('world_audio'));
-
-//         if (!worldEntity) {
-//             const { Entity } = require('../entities/entity.js');
-//             worldEntity = new Entity();
-//             worldEntity.addComponent('world_audio', true);
-//             worldEntity.addComponent('audio', new Audio());
-//             this.game.addEntity(worldEntity);
-//         }
-
-//         return worldEntity.getComponent('audio');
-//     }
-
-//     update(deltaTime) {
-//         if (!this.initialized) {
-//             this.init();
-//         }
-
-//         this.entities.forEach(entity => {
-//             const audio = entity.getComponent('audio');
-//             if (!audio) return;
-
-//             // Gestion des sons du joueur
-//             if (entity.getComponent('input')) {
-//                 this.updatePlayerSounds(entity, audio, deltaTime);
-//             }
-
-//             // Gestion des sons des ennemis
-//             else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
-//                 this.updateEnemySounds(entity, audio, deltaTime);
-//             }
-//         });
-
-//         // Mettre à jour la musique d'ambiance
-//         this.updateAmbientMusic(deltaTime);
-//     }
-
-//     updatePlayerSounds(entity, audio, deltaTime) {
-//         const animation = entity.getComponent('animation');
-//         const input = entity.getComponent('input');
-//         const property = entity.getComponent('property');
-
-//         if (!animation || !input) return;
-
-//         const currentState = animation.currentState;
-
-//         // Si l'état de l'animation a changé
-//         if (currentState !== audio.lastAnimationState) {
-//             // Arrêter le son de l'animation précédente
-//             if (audio.lastAnimationState) {
-//                 audio.stopSound(`player_${audio.lastAnimationState}`, { fadeOut: 200 });
-//             }
-
-//             // Jouer le son correspondant à la nouvelle animation
-//             switch (currentState) {
-//                 case 'idle':
-//                     audio.playSound('player_idle', { fadeIn: 300 });
-//                     break;
-//                 case 'run':
-//                     audio.playSound('player_run', { fadeIn: 200 });
-//                     break;
-//                 case 'jump':
-//                     audio.playSound('player_jump');
-//                     break;
-//                 case 'roulade':
-//                     audio.playSound('player_roulade');
-//                     break;
-//                 case 'attack1':
-//                     audio.playSound('player_attack1');
-//                     break;
-//                 case 'attack2':
-//                     audio.playSound('player_attack2');
-//                     break;
-//                 case 'attack3':
-//                     audio.playSound('player_attack3');
-//                     break;
-//                 case 'magicAttack':
-//                     audio.playSound('player_magicAttack');
-//                     break;
-//                 case 'arrowShoot':
-//                     audio.playSound('player_arrowShoot');
-//                     break;
-//                 case 'hurt':
-//                     audio.playSound('player_hurt');
-//                     break;
-//                 case 'death':
-//                     audio.playSound('player_death');
-//                     // Arrêter les autres sons
-//                     audio.currentSounds.forEach((soundInfo, id) => {
-//                         if (id !== 'player_death') {
-//                             audio.stopSound(id, { fadeOut: 500 });
-//                         }
-//                     });
-//                     break;
-//             }
-
-//             audio.lastAnimationState = currentState;
-//         }
-
-//         // Suivre le mouvement pour les sons continus
-//         const isMoving = input.vector.h !== 0 || !property.isOnGround;
-//         if (isMoving !== audio.isMoving) {
-//             audio.isMoving = isMoving;
-
-//             // Ajuster le volume des pas en fonction du mouvement
-//             if (audio.currentSounds.has('player_run')) {
-//                 const runSound = audio.currentSounds.get('player_run').audio;
-//                 if (isMoving) {
-//                     audio.fadeIn(runSound, 0.4, 300);
-//                 } else {
-//                     audio.fadeOut(runSound, 300);
-//                 }
-//             }
-//         }
-//     }
-
-//     updateEnemySounds(entity, audio, deltaTime) {
-//         const animation = entity.getComponent('animation');
-//         const property = entity.getComponent('property');
-//         const player = this.findPlayer();
-
-//         if (!animation || !player) return;
-
-//         const currentState = animation.currentState;
-//         const playerInRange = this.isPlayerInRange(entity, player);
-
-//         // Si l'état de l'animation a changé
-//         if (currentState !== audio.lastAnimationState) {
-//             // Arrêter le son de l'animation précédente
-//             if (audio.lastAnimationState) {
-//                 audio.stopSound(`enemy_${audio.lastAnimationState}`, { fadeOut: 200 });
-//             }
-
-//             // Jouer le son correspondant à la nouvelle animation
-//             switch (currentState) {
-//                 case 'idle':
-//                 case 'idle2':
-//                     audio.playSound('enemy_idle', { fadeIn: 300 });
-//                     break;
-//                 case 'magic':
-//                     audio.playSound('enemy_magic', { volume: playerInRange ? 0.8 : 0.3 });
-//                     break;
-//                 case 'hurt':
-//                 case 'hurt1':
-//                     audio.playSound('enemy_hurt');
-//                     break;
-//                 case 'death':
-//                     audio.playSound('enemy_death');
-//                     // Arrêter les autres sons
-//                     audio.currentSounds.forEach((soundInfo, id) => {
-//                         if (id !== 'enemy_death') {
-//                             audio.stopSound(id, { fadeOut: 300 });
-//                         }
-//                     });
-//                     break;
-//             }
-
-//             audio.lastAnimationState = currentState;
-//         }
-
-//         // Gestion du son de magie en fonction de la proximité du joueur
-//         if (currentState === 'magic' && audio.currentSounds.has('enemy_magic')) {
-//             const now = Date.now();
-//             const magicSound = audio.currentSounds.get('enemy_magic').audio;
-
-//             if (playerInRange) {
-//                 // Joueur dans la zone de détection: volume élevé
-//                 audio.enemyDetectionTime = now;
-//                 magicSound.volume = 0.8;
-//             } else if (now - audio.enemyDetectionTime > 2000) {
-//                 // Plus de 2 secondes sans joueur dans la zone: volume réduit
-//                 magicSound.volume = 0.3;
-
-//                 // Légère augmentation si l'ennemi est en mouvement
-//                 if (property.isMoving) {
-//                     magicSound.volume = 0.45;
-//                 }
-//             }
-//         }
-
-//         // Détection du joueur
-//         if (playerInRange && !this.lastEnemyUpdate.has(entity.uuid)) {
-//             audio.playSound('enemy_detection');
-//             this.lastEnemyUpdate.set(entity.uuid, Date.now());
-//             this.activatedEnemies++;
-//         } else if (!playerInRange && this.lastEnemyUpdate.has(entity.uuid)) {
-//             // Réinitialisation si le joueur n'est plus dans la zone
-//             this.lastEnemyUpdate.delete(entity.uuid);
-//         }
-//     }
-
-//     updateAmbientMusic(deltaTime) {
-//         // Obtenir le nombre de pièces collectées et d'ennemis activés
-//         const collectibleSystem = this.findCollectibleSystem();
-//         if (!collectibleSystem) return;
-
-//         const coins = collectibleSystem.coinsCollected || 0;
-//         const worldAudio = this.getOrCreateWorldAudio();
-
-//         // Si le nombre de coins a changé
-//         if (coins !== this.coinsCollected) {
-//             this.coinsCollected = coins;
-
-//             // Choisir la piste en fonction du nombre de pièces et d'ennemis
-//             let nextTrack = 'music_ambient_1';
-
-//             if (coins >= 5) {
-//                 nextTrack = 'music_ambient_3';
-//             } else if (coins >= 3 || this.activatedEnemies >= 3) {
-//                 nextTrack = 'music_ambient_2';
-//             } else if (this.activatedEnemies >= 1) {
-//                 nextTrack = 'music_intense';
-//             }
-
-//             // Changer la musique si nécessaire
-//             if (nextTrack !== this.currentMusicTrack) {
-//                 worldAudio.stopSound(this.currentMusicTrack, { fadeOut: 1000 });
-//                 worldAudio.playSound(nextTrack, { fadeIn: 1000 });
-//                 this.currentMusicTrack = nextTrack;
-//             }
-//         }
-//     }
-
-//     // Gestion des événements
-//     handleEntityDeath(entity) {
-//         // if (!entity.getComponent('input')) {
-//         //     // C'est un ennemi qui est mort
-//         //     this.activatedEnemies = Math.max(0, this.activatedEnemies - 1);
-//         // }
-//     }
-
-//     handleLevelComplete() {
-//         // const worldAudio = this.getOrCreateWorldAudio();
-//         // worldAudio.stopSound(this.currentMusicTrack, { fadeOut: 500 });
-//         // worldAudio.playSound('level_complete');
-//     }
-
-//     handleCoinCollected() {
-//         // Appelé quand une pièce est collectée (déjà géré via le compteur)
-//     }
-
-//     // Méthodes utilitaires
-//     findPlayer() {
-//         return Array.from(this.entities).find(entity => entity.getComponent('input'));
-//     }
-
-//     findCollectibleSystem() {
-//         return Array.from(this.game.systems).find(system => system.constructor.name === 'Collectible');
-//     }
-
-//     isPlayerInRange(entity, player) {
-//         const entityPos = entity.getComponent('position');
-//         const entityHitbox = entity.getComponent('circle_hitbox');
-//         const playerPos = player.getComponent('position');
-
-//         if (!entityPos || !entityHitbox || !playerPos) return false;
-
-//         const dx = entityPos.x - playerPos.x;
-//         const dy = entityPos.y - playerPos.y;
-//         const distance = Math.sqrt(dx * dx + dy * dy);
-
-//         return distance <= entityHitbox.rangedRadius;
-//     }
-// }
