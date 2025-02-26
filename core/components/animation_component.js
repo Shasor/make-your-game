@@ -78,15 +78,13 @@ export class CoinAnimation extends Animation {
     }
 };
 
-export class PortalAnimation extends Animation {
+export class EffectAnimation extends Animation {
     constructor() {
         super();
         this.sequences = {
-            idle: {
-                // Ligne 10 et 11 (indices 10 et 11), toutes les colonnes
+            portal: {
                 frames: [
                     ...Array.from({ length: 15 }, (_, i) => i + (10 * 11)), // Ligne 10
-                    // ...Array.from({ length: 15 }, (_, i) => i + (11 * 11))  // Ligne 11
                 ],
                 speed: 15,
             },

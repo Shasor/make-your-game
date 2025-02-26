@@ -1,6 +1,7 @@
 // core/systems/collectible_system.js
 import { System } from './system.js';
 
+
 export class Collectible extends System {
     constructor() {
         super();
@@ -8,8 +9,8 @@ export class Collectible extends System {
         this.coinsCollected = 0;
         this.coinsTotal = 6; // Nombre total de pièces dans le niveau
         this.portalActivated = false;
-        this.scoreForNextLevel = 60;
-        this.coinsForNextLevel = 6;
+        this.scoreForNextLevel = 1;
+        this.coinsForNextLevel = 1;
         this.currentMap = 'map1';
         this.finalLevel = 'map4';
 
@@ -30,14 +31,14 @@ export class Collectible extends System {
         this.scoreDisplay = document.createElement('div');
         this.scoreDisplay.style.color = '#FFD700'; // Couleur dorée
         this.scoreDisplay.style.fontSize = '24px';
-        this.scoreDisplay.style.fontFamily = 'Arial, sans-serif';
+        this.scoreDisplay.style.fontFamily = 'Press Start 2P, sans-serif';
         this.scoreDisplay.style.textShadow = '2px 2px 2px rgba(0,0,0,0.5)';
 
         // Affichage des pièces
         this.coinsDisplay = document.createElement('div');
         this.coinsDisplay.style.color = '#FFA500'; // Couleur orange
         this.coinsDisplay.style.fontSize = '20px';
-        this.coinsDisplay.style.fontFamily = 'Arial, sans-serif';
+        this.coinsDisplay.style.fontFamily = 'Press Start 2P, sans-serif';
         this.coinsDisplay.style.textShadow = '2px 2px 2px rgba(0,0,0,0.5)';
 
         // Barre de progression
@@ -97,6 +98,7 @@ export class Collectible extends System {
         this.entities.forEach((entity) => {
             const collectible = entity.getComponent('collectible');
             const property = entity.getComponent('property');
+            const position = entity.getComponent('position');
 
             if (!collectible || collectible.isCollected) return;
 
@@ -106,9 +108,9 @@ export class Collectible extends System {
                 this.coinsCollected++;
 
                 // Jouer le son de collecte
-                const playerAudio = player.getComponent('audio');
-                if (playerAudio) {
-                    playerAudio.playSound('coin_collect');
+                const entityAudio = entity.getComponent('audio');
+                if (entityAudio && entityAudio.sounds.has('coin_collect')) {
+                    entityAudio.playSound('coin_collect');
                 }
 
                 // Émettre un événement pour le système audio
@@ -127,45 +129,62 @@ export class Collectible extends System {
     }
 
     transformToPortal(entity) {
-        // Changer l'animation
-        const oldAnimation = entity.getComponent('animation');
-        if (oldAnimation) {
-            entity.components.delete('animation');
-        }
+        // Ne pas changer l'animation pour le moment, on attend toujours le dernier talisman
 
-        entity.addComponent('animation', new PortalAnimation());
-
-        // Marquer comme portail dans le composant collectible
+        // Marquer comme "en attente" dans le composant collectible
         const collectible = entity.getComponent('collectible');
         if (collectible) {
-            collectible.isPortal = true;
-            collectible.value = 1; // Valeur pour compléter le niveau
+            collectible.isPortalInactive = true; // Pas encore un portail actif
+            collectible.needsTalisman = true;
         }
 
+        // Ajouter un texte indiquant qu'il faut trouver le dernier talisman
+        const gameUI = document.getElementById('game-ui-messages') || document.body;
+        const message = document.createElement('div');
+        message.className = 'talisman-message';
+        message.textContent = "Il ne reste plus qu'à trouver le dernier talisman pour ouvrir le portail";
+        message.style.cssText = `
+    position: absolute;
+    bottom: 20%;
+    width: 100%;
+    text-align: center;
+    color: #f8d942;
+    font-size: 24px;
+    text-shadow: 2px 2px 4px #000;
+    z-index: 9999;
+    pointer-events: none;
+    font-family: 'Press Start 2P', sans-serif;
+`;
+        gameUI.appendChild(message);
 
-        // Mettre à jour le visuel si nécessaire
-        const visual = entity.getComponent('visual');
-        if (visual) {
-            visual.width = 64;  // Vous pouvez ajuster la taille si nécessaire
-            visual.height = 64;
-        }
+        // Faire disparaître le message après 5 secondes
+        setTimeout(() => {
+            message.style.opacity = '0';
+            message.style.transition = 'opacity 1s';
+            setTimeout(() => message.remove(), 1000);
+        }, 5000);
 
+        // Jouer le son portal.wav
         let portalAudio = entity.getComponent('audio');
         if (!portalAudio) {
             import('../create/audio_create.js').then(module => {
                 portalAudio = module.addAudioToEntity(entity);
-                portalAudio.addSound('portal_active', './assets/sounds/collectibles/portal.mp3', { volume: 0.7, loop: true, category: 'sfx' });
-                portalAudio.playSound('portal_active', { fadeIn: 500 });
+                portalAudio.addSound('portal_inactive', './assets/sounds/collectibles/portal.wav', { volume: 0.5, category: 'sfx' });
+                portalAudio.playSound('portal_inactive');
             });
         } else {
-            portalAudio.playSound('portal_active', { fadeIn: 500 });
+            // Si l'audio existe déjà, ajouter juste le son et le jouer
+            portalAudio.addSound('portal_inactive', './assets/sounds/collectibles/portal.wav', { volume: 0.5, category: 'sfx' });
+            portalAudio.playSound('portal_inactive');
         }
     }
 
     updateDisplay() {
         // Mettre à jour le texte
         this.scoreDisplay.textContent = `Score: ${this.score}`;
+        this.scoreDisplay.style.fontFamily = "'Press Start 2P', sans-serif";
         this.coinsDisplay.textContent = `Pièces: ${this.coinsCollected}/${this.coinsForNextLevel}`;
+        this.coinsDisplay.style.fontFamily = "'Press Start 2P', sans-serif";
 
         // Calculer la progression
         const progressPercent = Math.min(
@@ -186,7 +205,13 @@ export class Collectible extends System {
 
     checkLevelProgression() {
         if (this.score >= this.scoreForNextLevel && this.coinsCollected >= this.coinsForNextLevel) {
+            // Émettre un événement pour indiquer que le portail a été collecté
+            this.game.eventBus.emit('portalCollected');
+
+            // Afficher le message de niveau terminé
             this.showLevelComplete();
+
+            // Charger le niveau suivant après un délai
             setTimeout(() => {
                 this.loadNextLevel();
             }, 2000);
@@ -202,10 +227,11 @@ export class Collectible extends System {
         message.style.transform = 'translate(-50%, -50%)';
         message.style.color = '#FFD700';
         message.style.fontSize = '48px';
-        message.style.fontFamily = 'Arial, sans-serif';
+        message.style.fontFamily = 'Press Start 2P, sans-serif';
         message.style.textShadow = '3px 3px 5px rgba(0,0,0,0.5)';
         message.style.zIndex = '2000';
         message.style.animation = 'fadeInOut 2s ease';
+        message.style.fontFamily = "'Press Start 2P', sans-serif";
 
         // Ajouter le style d'animation
         const style = document.createElement('style');
@@ -227,6 +253,8 @@ export class Collectible extends System {
 
     async loadNextLevel() {
         try {
+            console.log(`Chargement du niveau suivant. Niveau actuel: ${this.currentMap}`);
+
             // Déterminer le prochain niveau
             let nextMap;
             let gameComplete = false;
@@ -237,45 +265,64 @@ export class Collectible extends System {
                     break;
                 case 'map2':
                     nextMap = 'map3';
+                    console.log("Passage de map2 à map3");
                     break;
                 case 'map3':
                     nextMap = 'map4';
                     break;
                 case 'map4':
                     gameComplete = true;
+                    console.log("Jeu terminé, déclenchement de la cinématique de fin");
                     break;
                 default:
                     nextMap = 'map1';
             }
 
+            // Si le jeu est terminé, afficher la cinématique de fin ou l'écran de fin
             if (gameComplete) {
-                this.showGameComplete();
-                return;
+                // Jouer la cinématique de fin
+                const cutsceneSystem = Array.from(this.game.systems).find(
+                    system => system.constructor.name === 'CutsceneSystem'
+                );
+
+                if (cutsceneSystem && cutsceneSystem.playCutscene) {
+                    cutsceneSystem.playCutscene('outro');
+                } else {
+                    this.showGameComplete();
+                }
+                return; // Important: arrêter l'exécution ici
             }
 
-            // Réinitialiser les compteurs pour le nouveau niveau
+            // IMPORTANT: Mettre à jour la carte actuelle AVANT de jouer la cinématique
+            console.log(`Mise à jour du niveau actuel de ${this.currentMap} à ${nextMap}`);
+            const oldMap = this.currentMap;
+            this.currentMap = nextMap;
+
             this.score = 0;
             this.coinsCollected = 0;
             this.portalActivated = false;
             this.updateDisplay();
 
-            // Supprimer toutes les entités existantes
-            const entitiesToRemove = new Set(this.game.entities);
-            entitiesToRemove.forEach(entity => {
-                this.game.removeEntity(entity);
-            });
+            // Jouer la cinématique avec l'ancienne valeur de map
+            const cutsceneSystem = Array.from(this.game.systems).find(
+                system => system.constructor.name === 'CutsceneSystem'
+            );
 
-            // Nettoyer le monde du jeu
-            const gameWorld = document.querySelector('.game-world');
-            if (gameWorld) {
-                gameWorld.innerHTML = '';
+
+            if (cutsceneSystem && cutsceneSystem.playCutscene) {
+                const transitionId = `${oldMap}_to_${nextMap}`;
+                console.log(`Tentative de jouer la cinématique: ${transitionId}`);
+
+                if (cutsceneSystem.cutscenes[transitionId]) {
+                    cutsceneSystem.playCutscene(transitionId);
+                } else {
+                    console.warn(`Cinématique ${transitionId} non trouvée, chargement direct du niveau.`);
+                    await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
+                    this.game.paused = false;
+                }
+            } else {
+                await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
             }
-
-            // Mettre à jour la carte actuelle
-            this.currentMap = nextMap;
-
-            // Charger la nouvelle map
-            await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
         } catch (error) {
             console.error('Erreur lors du chargement du niveau suivant:', error);
         }
@@ -294,20 +341,22 @@ export class Collectible extends System {
         gameCompleteScreen.style.justifyContent = 'center';
         gameCompleteScreen.style.alignItems = 'center';
         gameCompleteScreen.style.zIndex = '3000';
+        gameCompleteScreen.style.fontFamily = "'Press Start 2P', sans-serif";
 
         const title = document.createElement('h1');
         title.textContent = 'Félicitations !';
         title.style.color = '#FFD700';
         title.style.fontSize = '64px';
         title.style.marginBottom = '20px';
-        title.style.fontFamily = 'Arial, sans-serif';
+        title.style.fontFamily = 'Press Start 2P, sans-serif';
         title.style.textShadow = '3px 3px 5px rgba(0,0,0,0.5)';
+        title.style.fontFamily = "'Press Start 2P', sans-serif";
 
         const message = document.createElement('p');
         message.textContent = 'Vous avez terminé le jeu !';
         message.style.color = '#FFFFFF';
         message.style.fontSize = '32px';
-        message.style.fontFamily = 'Arial, sans-serif';
+        message.style.fontFamily = 'Press Start 2P, sans-serif';
 
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Recommencer';
@@ -319,6 +368,7 @@ export class Collectible extends System {
         restartButton.style.border = 'none';
         restartButton.style.borderRadius = '5px';
         restartButton.style.cursor = 'pointer';
+        restartButton.style.fontFamily = "'Press Start 2P', sans-serif";
         restartButton.onclick = () => {
             document.body.removeChild(gameCompleteScreen);
             this.currentMap = 'map1';

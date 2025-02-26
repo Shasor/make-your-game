@@ -54,6 +54,19 @@ export class CircleHitbox extends System {
 
             if (!hitbox2 || !position2 || !visual2 || !property2) return;
 
+            // Traitement spécial pour les collectibles
+            if (entity2.getComponent('collectible')) {
+                const center2 = hitbox2.getCircleCenter(position2, visual2);
+                if (hitbox1.checkCollision(center1, center2, hitbox1.collisionRadius, hitbox2.collisionRadius)) {
+                    // Marquer juste la collision sans déplacement physique
+                    property1.isCollided = true;
+                    property2.isCollided = true;
+                    property1.collidingWith.add(entity2);
+                    property2.collidingWith.add(entity1);
+                }
+                return; // Passer à l'entité suivante
+            }
+
             const center2 = hitbox2.getCircleCenter(position2, visual2);
 
             // Vérifier la collision physique
