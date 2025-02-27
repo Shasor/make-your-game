@@ -26,7 +26,7 @@ export class Camera extends System {
             this.mapWidth = metadata.width * (metadata.tileSize || this.tileSize);
             this.mapHeight = metadata.height * (metadata.tileSize || this.tileSize);
             this.tileSize = metadata.tileSize || this.tileSize;
-            console.log(`Map dimensions loaded: ${this.mapWidth}x${this.mapHeight}px`);
+            // console.log(`Map dimensions loaded: ${this.mapWidth}x${this.mapHeight}px`);
         }
     }
     update() {
@@ -56,17 +56,20 @@ export class Camera extends System {
             camera.y = Math.min(camera.y, this.mapHeight - viewportHeight / 2);
         }
 
-        // Mettre à jour la position du monde avec un nombre entier de pixels
+        // OPTIMISATION 1: Arrondir les valeurs pour éviter le rendu subpixel
         const transformX = Math.round(-camera.x + viewportWidth / 2);
         const transformY = Math.round(-camera.y + viewportHeight / 2);
 
-        // Appliquer la transformation avec translate3d pour la performance
+        // OPTIMISATION 2: Utiliser translate3d pour activer l'accélération matérielle
         this.gameWorld.style.transform = `translate3d(${transformX}px, ${transformY}px, 0)`;
 
-        // Mettre à jour la position des hitboxes debug si elles existent
-        document.querySelectorAll('.debug-circle').forEach(circle => {
-            // Appliquer la même transformation à chaque cercle de debug
-            circle.style.transform = `translate3d(${-transformX}px, ${-transformY}px, 0)`;
-        });
+        // OPTIMISATION 3: Ne mettre à jour les hitboxes de debug que si nécessaire
+        const debugCircles = document.querySelectorAll('.hitbox-circle');
+        if (debugCircles.length > 0) {
+            const transformStyle = `translate3d(${-transformX}px, ${-transformY}px, 0)`;
+            debugCircles.forEach(circle => {
+                circle.style.transform = transformStyle;
+            });
+        }
     }
 }

@@ -15,9 +15,9 @@ export function createEnemy(x = 0, y = 0, width = 64, height = 64, maxHealth = 1
     enemy.addComponent('position', new Position(x, y));
     enemy.addComponent('velocity', new Velocity());
     enemy.addComponent('visual', new Visual(color, height, width));
-    enemy.addComponent('health', new Health(3));
+    enemy.addComponent('health', new Health(maxHealth));
     enemy.addComponent('property', new Property(false, 0, true, 0, true));
-    enemy.addComponent('damage', new Damage(10));
+    enemy.addComponent('damage', new Damage(3));
     enemy.addComponent('audio', new Audio());
     enemy.addComponent('animation', new SatiroAnimation());
     enemy.addComponent('circle_hitbox', new CircleHitbox(

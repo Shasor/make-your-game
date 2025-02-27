@@ -51,22 +51,28 @@ export function createMenu(game, div) {
         return button;
     }
 
-    // Continue (nouveau bouton)
-    const continueBtn = createMenuButton('Continue', () => {
-        game.paused = false;
-    });
-    div.appendChild(continueBtn);
 
     // Resume (maintenu pour compatibilité)
     const resume = createMenuButton('Resume', () => {
         game.paused = false;
+        div.style.visibility = 'hidden';  // Cacher le menu
+        div.style.display = 'none';       // Important pour qu'il n'intercepte pas les clicks
     });
     div.appendChild(resume);
 
     // restart
     const restart = createMenuButton('Restart', () => {
         game.paused = false;
-        game.restart();
+        div.style.visibility = 'hidden';  // Cacher le menu
+        div.style.display = 'none';       // Important
+
+        // Utiliser resetCurrentLevel au lieu de restart
+        if (game.resetCurrentLevel) {
+            game.resetCurrentLevel();
+        } else {
+            // Fallback si la méthode n'existe pas
+            game.restart();
+        }
     });
     div.appendChild(restart);
 
@@ -306,7 +312,7 @@ export function createMainMenu(gameInstance, container) {
                 system => system.constructor.name === 'AudioSystem');
 
             if (audioSystem) {
-                console.log("Démarrage de la musique de map 1 via le bouton Start");
+                //console.log("Démarrage de la musique de map 1 via le bouton Start");
                 audioSystem.startMapMusic(1);
             }
         }, 500);
@@ -355,7 +361,7 @@ export function createMainMenu(gameInstance, container) {
         easyBtn.style.backgroundColor = '#666666';
         mediumBtn.style.backgroundColor = '#4A4A4A';
         hardBtn.style.backgroundColor = '#4A4A4A';
-        console.log("Mode facile activé");
+        //console.log("Mode facile activé");
     };
 
     mediumBtn.onclick = () => {
@@ -363,7 +369,7 @@ export function createMainMenu(gameInstance, container) {
         easyBtn.style.backgroundColor = '#4A4A4A';
         mediumBtn.style.backgroundColor = '#666666';
         hardBtn.style.backgroundColor = '#4A4A4A';
-        console.log("Mode moyen activé");
+        //console.log("Mode moyen activé");
     };
 
     hardBtn.onclick = () => {
@@ -371,7 +377,7 @@ export function createMainMenu(gameInstance, container) {
         easyBtn.style.backgroundColor = '#4A4A4A';
         mediumBtn.style.backgroundColor = '#4A4A4A';
         hardBtn.style.backgroundColor = '#666666';
-        console.log("Mode difficile activé");
+        //console.log("Mode difficile activé");
     };
 
     menu.appendChild(easyBtn);

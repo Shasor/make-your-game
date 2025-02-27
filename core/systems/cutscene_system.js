@@ -123,7 +123,7 @@ export class CutsceneSystem extends System {
             // Transition map2 vers map3 (4 frames)
             map2_to_map3: {
                 frames: 3,
-                duration: 3000,
+                duration: 4000,
                 path: './assets/cutscenes/map2_to_map3/frame_',
                 extension: '.webp',
                 audio: './assets/sounds/cutscenes/intro.wav',
@@ -137,7 +137,7 @@ export class CutsceneSystem extends System {
             // Transition map3 vers map4 (3 frames)
             map3_to_map4: {
                 frames: 3,
-                duration: 3000,
+                duration: 4000,
                 path: './assets/cutscenes/map3_to_map4/frame_',
                 extension: '.webp',
                 audio: './assets/sounds/cutscenes/intro.wav',
@@ -150,7 +150,7 @@ export class CutsceneSystem extends System {
             // Outro (4 frames)
             outro: {
                 frames: 4,
-                duration: 3500, // Un peu plus long pour la fin
+                duration: 5000, // Un peu plus long pour la fin
                 path: './assets/cutscenes/outro/frame_',
                 extension: '.webp',
                 audio: './assets/sounds/cutscenes/intro.wav',
@@ -169,11 +169,11 @@ export class CutsceneSystem extends System {
      */
     playCutscene(name) {
         if (!this.cutscenes[name]) {
-            console.error(`Cinématique '${name}' non trouvée`);
+            //console.error(`Cinématique '${name}' non trouvée`);
             return;
         }
 
-        console.log(`Démarrage de la cinématique: ${name}`);
+        //console.log(`Démarrage de la cinématique: ${name}`);
 
         // S'assurer que le système audio est initialisé
         if (this.game) {
@@ -181,7 +181,7 @@ export class CutsceneSystem extends System {
                 system => system.constructor.name === 'AudioSystem');
 
             if (audioSystem && !audioSystem.initialized) {
-                console.log("Initialisation forcée du système audio");
+                //console.log("Initialisation forcée du système audio");
                 audioSystem.init();
             }
         }
@@ -308,13 +308,13 @@ export class CutsceneSystem extends System {
 
             case 'endGame':
                 // Afficher l'écran de crédits au lieu du menu principal
-                console.log("Fin du jeu, affichage des crédits!");
+                //console.log("Fin du jeu, affichage des crédits!");
                 this.showCredits(); // Appel de la méthode showCredits
                 // Le menu principal sera affiché lorsque l'utilisateur cliquera sur "Retour au menu principal"
                 break;
 
             default:
-                console.warn(`Action non reconnue: ${action}`);
+                //console.warn(`Action non reconnue: ${action}`);
                 if (this.game) {
                     this.game.paused = false;
                 }

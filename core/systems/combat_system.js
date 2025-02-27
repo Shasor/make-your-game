@@ -19,8 +19,15 @@ export class Combat extends System {
 
         // Si le joueur attaque
         if (playerInput.attack1 || playerInput.attack2 || playerInput.attack3) {
-            console.log("Player is attacking!");  // Debug
+            //console.log("Player is attacking!");  // Debug
             const playerCenter = playerHitbox.getCircleCenter(playerPos, playerVisual);
+
+            // Déterminer la force de recul en fonction du type d'attaque
+            let knockbackForce = 20; // Force de base
+
+            if (playerInput.attack1) knockbackForce = 20;
+            if (playerInput.attack2) knockbackForce = 20;
+            if (playerInput.attack3) knockbackForce = 20;
 
             this.entities.forEach(enemy => {
                 if (enemy === player) return;
@@ -30,8 +37,10 @@ export class Combat extends System {
                 const enemyVisual = enemy.getComponent('visual');
                 const enemyHealth = enemy.getComponent('health');
                 const enemyAnimation = enemy.getComponent('animation');
+                const enemyVelocity = enemy.getComponent('velocity');
 
-                if (!enemyHitbox || !enemyPos || !enemyVisual || !enemyHealth || !enemyAnimation) return;
+                if (!enemyHitbox || !enemyPos || !enemyVisual || !enemyHealth ||
+                    !enemyAnimation || !enemyVelocity) return;
 
                 const enemyCenter = enemyHitbox.getCircleCenter(enemyPos, enemyVisual);
 
@@ -42,7 +51,7 @@ export class Combat extends System {
                 );
 
                 if (distance <= playerHitbox.meleeRadius) {
-                    console.log("Enemy in range! Current health:", enemyHealth.currentLives); // Debug
+                    //console.log("Enemy in range! Current health:", enemyHealth.currentLives); // Debug
 
                     // Réduire la vie de l'ennemi
                     enemyHealth.currentLives--;
@@ -50,12 +59,36 @@ export class Combat extends System {
                     // Jouer l'animation de dégât
                     enemyAnimation.setState('hurt');
 
-                    console.log("Enemy health after hit:", enemyHealth.currentLives); // Debug
+                    // Calculer la direction du knockback (à partir du joueur vers l'ennemi)
+                    const knockbackDirX = enemyCenter.x - playerCenter.x;
+                    const knockbackDirY = enemyCenter.y - playerCenter.y;
+
+                    // Normaliser le vecteur de direction
+                    const length = Math.sqrt(knockbackDirX * knockbackDirX + knockbackDirY * knockbackDirY);
+                    const normalizedDirX = length > 0 ? knockbackDirX / length : 0;
+                    const normalizedDirY = length > 0 ? knockbackDirY / length : 0;
+
+                    // Appliquer la force de knockback (ajuster selon les besoins)
+                    enemyVelocity.vx = normalizedDirX * knockbackForce;
+                    enemyVelocity.vy = -normalizedDirY * knockbackForce; // Négatif car Y est inversé
+
+                    // Marquer que l'ennemi est en knockback
+                    if (enemyHealth.isBeingKnockedBack !== undefined) {
+                        enemyHealth.isBeingKnockedBack = true;
+                        enemyHealth.knockbackStartTime = Date.now();
+                    }
+
+                    //console.log("Enemy health after hit:", enemyHealth.currentLives); // Debug
 
                     // Si l'ennemi n'a plus de vie
                     if (enemyHealth.currentLives <= 0) {
-                        console.log("Enemy died!"); // Debug
+                        //console.log("Enemy died!"); // Debug
                         enemyAnimation.setState('death');
+
+                        // Utiliser la méthode centralisée pour compter les morts
+                        if (this.game && this.game.incrementEnemyKillCount) {
+                            this.game.incrementEnemyKillCount(enemy);
+                        }
 
                         // Supprimer l'ennemi après la durée de l'animation
                         const deathDuration = (enemyAnimation.sequences.death.frames.length /

@@ -31,7 +31,7 @@ export class MapLoader {
 
             // Déclencher la musique uniquement si ce n'est pas le chargement initial
             if (!isInitialLoad && mapData.music && mapData.music.path) {
-                console.log(`Chargement de la musique: ${mapData.music.path}`);
+                //console.log(`Chargement de la musique: ${mapData.music.path}`);
                 this.game.eventBus.emit('mapMusicChange', {
                     path: mapData.music.path,
                     volume: mapData.music.volume || 0.5,
@@ -48,13 +48,13 @@ export class MapLoader {
 
             if (audioSystem) {
                 const mapNumber = this.extractMapNumber(mapPath);
-                console.log(`Réinitialisation audio pour map ${mapNumber}`);
+                //console.log(`Réinitialisation audio pour map ${mapNumber}`);
                 audioSystem.reinitializeAudio(mapNumber);
             }
 
             return true;
         } catch (error) {
-            console.error('Error loading map:', error);
+            //console.error('Error loading map:', error);
             return false;
         }
     }
@@ -137,7 +137,7 @@ export class MapLoader {
         }
         // Charger la musique de la map si elle existe
         if (mapData.music && mapData.music.path) {
-            console.log(`Chargement du thème de la map: ${mapData.music.path}`);
+            //console.log(`Chargement du thème de la map: ${mapData.music.path}`);
             this.game.eventBus.emit('mapMusicChange', {
                 path: mapData.music.path,
                 volume: mapData.music.volume || 0.5,
