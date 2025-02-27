@@ -55,7 +55,7 @@ export class AudioSystem extends System {
     init() {
         if (this.initialized) return;
 
-        //console.log("Initializing audio system");
+        console.log("Initializing audio system");
 
         // Create world entity for global sounds (music, ambient)
         this.createWorldEntity();
@@ -181,7 +181,7 @@ export class AudioSystem extends System {
 
         // Add main ambient track with reduced volume
         worldAudio.addSound(this.ambientTrackId, './assets/sounds/music/ambient_1.wav',
-            { volume: 0.5, loop: true, category: 'ambient', preload: true });
+            { volume: 0.1, loop: true, category: 'ambient', preload: true });
 
         // Ajouter des sons d'ambiance supplémentaires qui seront joués aléatoirement
         // Note: On utilise les sons existants mais dans un contexte d'ambiance aléatoire
@@ -193,7 +193,7 @@ export class AudioSystem extends System {
 
         // Si les fichiers spécifiques n'existent pas, nous pouvons créer des placeholders
         if (!this.fileExists('./assets/sounds/environment/wind.wav')) {
-            //console.log("Sons d'ambiance non trouvés, utilisation des sons existants comme placeholders");
+            console.log("Sons d'ambiance non trouvés, utilisation des sons existants comme placeholders");
 
             // Utiliser d'autres sons comme placeholders
             ambientSounds[0].path = './assets/sounds/player/idle.wav';
@@ -236,10 +236,10 @@ export class AudioSystem extends System {
 
             if (audio) {
                 this.ambientMusicStarted = true;
-                //console.log("Ambient music started successfully");
+                console.log("Ambient music started successfully");
             }
         } catch (error) {
-            //console.error("Error starting ambient music:", error);
+            console.error("Error starting ambient music:", error);
         }
     }
 
@@ -557,7 +557,7 @@ export class AudioSystem extends System {
      * Handle map music change event
      */
     reinitializeAudio(mapNumber) {
-        //console.log(`Réinitialisation de l'audio pour le niveau ${mapNumber}`);
+        console.log(`Réinitialisation de l'audio pour le niveau ${mapNumber}`);
 
         // Vérifier si le niveau précédent a nettoyé les entités audio
         if (!this.initialized) {
@@ -580,27 +580,27 @@ export class AudioSystem extends System {
             if (entity.getComponent('input')) {
                 // Joueur
                 this.initializePlayerSounds(audio);
-                //console.log("Sons du joueur réinitialisés");
+                console.log("Sons du joueur réinitialisés");
             } else if (entity.getComponent('circle_hitbox') && !entity.getComponent('collectible')) {
                 // Ennemi
                 this.initializeEnemySounds(audio);
-                //console.log("Sons d'ennemi réinitialisés");
+                console.log("Sons d'ennemi réinitialisés");
             } else if (entity.getComponent('collectible')) {
                 // Collectible
                 this.initializeCollectibleSounds(audio);
-                //console.log("Sons de collectible réinitialisés");
+                console.log("Sons de collectible réinitialisés");
             }
         });
 
         // Vérifier une fois de plus le son de détection
         this.checkDetectionSound();
 
-        //console.log("Réinitialisation audio terminée");
+        console.log("Réinitialisation audio terminée");
     }
 
     // Modification de la méthode handleMapMusicChange pour qu'elle appelle reinitializeAudio
     handleMapMusicChange(musicData) {
-        //console.log("Changement de musique demandé, thèmes désactivés");
+        console.log("Changement de musique demandé, thèmes désactivés");
 
         // Vérifier si nous sommes en train de changer de map
         if (musicData && musicData.mapNumber) {
@@ -667,9 +667,9 @@ export class AudioSystem extends System {
             if (audio) {
                 // Vérifier si le son est correctement enregistré
                 if (audio.sounds.has('enemy_detection')) {
-                    //console.log("Le son de détection est correctement enregistré");
+                    console.log("Le son de détection est correctement enregistré");
                 } else {
-                    //console.warn("Le son de détection n'est pas enregistré");
+                    console.warn("Le son de détection n'est pas enregistré");
                     // Tentative de l'ajouter
                     audio.addSound('enemy_detection', './assets/sounds/enemy/detection.wav',
                         { volume: 1.0, category: 'sfx', cooldown: 2.0 });

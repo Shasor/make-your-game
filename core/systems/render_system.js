@@ -8,30 +8,15 @@ export class Render extends System {
     }
 
     update() {
-        // OPTIMISATION 1: Regrouper les modifications DOM
-        const fragment = document.createDocumentFragment();
-        const newEntities = [];
-
         this.entities.forEach((entity) => {
             const visual = entity.getComponent('visual');
             const position = entity.getComponent('position');
+            const hitbox = entity.getComponent('circle_hitbox');
+            if (!position && !visual || visual.div.parentElement) return;
 
-            if (!position || !visual) return;
+            if (document.querySelector(`[uuid="${entity.uuid}"]`)) return;
 
-            // Si le div existe déjà et est attaché au DOM, mettre à jour la position
-            if (visual.div.parentElement) {
-                visual.div.style.left = `${position.x}px`;
-                visual.div.style.top = `${position.y}px`;
-                return;
-            }
-
-            // Ne pas créer de div en double
-            if (document.querySelector(`[uuid="${entity.uuid}"]`)) {
-                console.warn(`Element already in DOM for entity ${entity.uuid}`);
-                return;
-            }
-
-            // Création et style du div de l'entité
+            // Create and style the entity's div
             visual.div.setAttribute('uuid', entity.uuid);
             visual.div.style.position = 'absolute';
             visual.div.style.left = `${position.x}px`;
@@ -40,13 +25,18 @@ export class Render extends System {
             visual.div.style.height = `${visual.height}px`;
             if (visual.bgColor) visual.div.style.backgroundColor = visual.bgColor;
 
-            // Ajout au monde de jeu
+            // hitbox
+            if (hitbox) {
+                hitbox.circles.collision.setAttribute('uuid', entity.uuid);
+                this.gameWorld.appendChild(hitbox.circles.collision)
+                hitbox.circles.melee.setAttribute('uuid', entity.uuid);
+                this.gameWorld.appendChild(hitbox.circles.melee)
+                hitbox.circles.ranged.setAttribute('uuid', entity.uuid);
+                this.gameWorld.appendChild(hitbox.circles.ranged)
+            }
+
+            // Add to game world instead of container
             this.gameWorld.appendChild(visual.div);
         });
-
-        // Ajouter le fragment au gameWorld en une seule opération
-        if (newEntities.length > 0) {
-            this.gameWorld.appendChild(fragment);
-        }
     }
 }

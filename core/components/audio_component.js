@@ -12,7 +12,7 @@ export class Audio extends Component {
         this.categories = {
             'sfx': 1.0,      // Augmenté de 0.8 à 1.0 pour les effets sonores
             'music': 0.4,    // Réduit de 0.5 à 0.2 pour la musique
-            'ambient': 1   // Légèrement augmenté de 0.2 à 0.3 pour l'ambiance
+            'ambient': 0.6   // Légèrement augmenté de 0.2 à 0.3 pour l'ambiance
         };
 
         // Global volume

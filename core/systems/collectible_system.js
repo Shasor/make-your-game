@@ -9,8 +9,8 @@ export class Collectible extends System {
         this.coinsCollected = 0;
         this.coinsTotal = 6; // Nombre total de pièces dans le niveau
         this.portalActivated = false;
-        this.scoreForNextLevel = 60;
-        this.coinsForNextLevel = 6;
+        this.scoreForNextLevel = 1;
+        this.coinsForNextLevel = 1;
         this.currentMap = 'map1';
         this.finalLevel = 'map4';
 
@@ -253,7 +253,7 @@ export class Collectible extends System {
 
     async loadNextLevel() {
         try {
-            //console.log(`Chargement du niveau suivant. Niveau actuel: ${this.currentMap}`);
+            console.log(`Chargement du niveau suivant. Niveau actuel: ${this.currentMap}`);
 
             // Déterminer le prochain niveau
             let nextMap;
@@ -265,14 +265,14 @@ export class Collectible extends System {
                     break;
                 case 'map2':
                     nextMap = 'map3';
-                    //console.log("Passage de map2 à map3");
+                    console.log("Passage de map2 à map3");
                     break;
                 case 'map3':
                     nextMap = 'map4';
                     break;
                 case 'map4':
                     gameComplete = true;
-                    //console.log("Jeu terminé, déclenchement de la cinématique de fin");
+                    console.log("Jeu terminé, déclenchement de la cinématique de fin");
                     break;
                 default:
                     nextMap = 'map1';
@@ -294,7 +294,7 @@ export class Collectible extends System {
             }
 
             // IMPORTANT: Mettre à jour la carte actuelle AVANT de jouer la cinématique
-            //console.log(`Mise à jour du niveau actuel de ${this.currentMap} à ${nextMap}`);
+            console.log(`Mise à jour du niveau actuel de ${this.currentMap} à ${nextMap}`);
             const oldMap = this.currentMap;
             this.currentMap = nextMap;
 
@@ -302,13 +302,6 @@ export class Collectible extends System {
             this.coinsCollected = 0;
             this.portalActivated = false;
             this.updateDisplay();
-
-            // Réinitialiser également le timer du joueur
-            const player = Array.from(this.game.entities).find(entity => entity.getComponent('input'));
-            if (player) {
-                const timer = player.getComponent('timer');
-                if (timer) timer.reset();
-            }
 
             // Jouer la cinématique avec l'ancienne valeur de map
             const cutsceneSystem = Array.from(this.game.systems).find(
@@ -318,12 +311,12 @@ export class Collectible extends System {
 
             if (cutsceneSystem && cutsceneSystem.playCutscene) {
                 const transitionId = `${oldMap}_to_${nextMap}`;
-                //console.log(`Tentative de jouer la cinématique: ${transitionId}`);
+                console.log(`Tentative de jouer la cinématique: ${transitionId}`);
 
                 if (cutsceneSystem.cutscenes[transitionId]) {
                     cutsceneSystem.playCutscene(transitionId);
                 } else {
-                    //console.warn(`Cinématique ${transitionId} non trouvée, chargement direct du niveau.`);
+                    console.warn(`Cinématique ${transitionId} non trouvée, chargement direct du niveau.`);
                     await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
                     this.game.paused = false;
                 }
@@ -331,7 +324,7 @@ export class Collectible extends System {
                 await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
             }
         } catch (error) {
-            //console.error('Erreur lors du chargement du niveau suivant:', error);
+            console.error('Erreur lors du chargement du niveau suivant:', error);
         }
     }
 

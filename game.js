@@ -20,8 +20,6 @@ import { Combat } from './core/systems/combat_system.js';
 import { createPlayer } from './create/player_create.js';
 import { AudioSystem } from './core/systems/audio_system.js';
 import { CutsceneSystem } from './core/systems/cutscene_system.js';
-import { TimerSystem } from './core/systems/timer_system.js';
-import { KillCounterSystem } from './core/systems/kill_counter_system.js';
 
 export class Game {
     constructor(container) {
@@ -39,10 +37,6 @@ export class Game {
             collectedItems: new Set(), // UUID des collectibles ramassés
             score: 0,
             coinsCollected: 0
-        };
-        this.globalStats = {// Compteur d'ennemis tués qui persiste entre les niveaux
-            enemiesKilled: 0,
-            startTime: Date.now() // Optionnel: pour calculer le temps total de jeu
         };
         this.collectibleSystem = null;
         this.firstMapLoad = undefined; // Pour détecter le premier chargement
@@ -118,7 +112,7 @@ export class Game {
     }
 
     async initAsync() {
-        ////console.log("Game initialization started");
+        console.log("Game initialization started");
 
         // Créer le menu de pause et le rendre accessible via this.pauseMenu
         this.pauseMenu = document.createElement('div');
@@ -148,8 +142,6 @@ export class Game {
         this.addSystem(new Render(this.container));
         this.addSystem(new PhysicsSystem());
         this.addSystem(new Debug());
-        this.addSystem(new TimerSystem());
-        this.addSystem(new KillCounterSystem());
 
         // Ajouter le système de cinématiques
         this.cutsceneSystem = new CutsceneSystem();
@@ -161,7 +153,7 @@ export class Game {
         // Charger la map mais ne pas la démarrer (la cinématique d'intro le fera)
         await this.preloadMap('./assets/maps/map1.json');
 
-        //console.log("Game initialization completed");
+        console.log("Game initialization completed");
     }
 
     // Précharge la map mais sans en faire la map active
@@ -173,32 +165,9 @@ export class Game {
 
             // Stocker les données pour une utilisation ultérieure
             this.preloadedMapData = mapData;
-            //console.log("Map preloaded:", mapPath);
+            console.log("Map preloaded:", mapPath);
         } catch (error) {
             console.error('Error preloading map:', error);
-        }
-    }
-
-    pauseGame() {
-        this.paused = true;
-
-        // Pauser le timer du joueur
-        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
-        if (player) {
-            const timer = player.getComponent('timer');
-            if (timer) timer.pause();
-        }
-    }
-
-    // Quand on reprend le jeu
-    resumeGame() {
-        this.paused = false;
-
-        // Reprendre le timer du joueur
-        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
-        if (player) {
-            const timer = player.getComponent('timer');
-            if (timer) timer.resume();
         }
     }
 
@@ -265,10 +234,7 @@ export class Game {
     }
 
     handlePlayerDeath() {
-        //console.log(`Gestion de la mort du joueur en mode ${this.difficulty}`);
-
-        // Réinitialiser le compteur d'ennemis tués
-        this.globalStats.enemiesKilled = 0;
+        console.log(`Gestion de la mort du joueur en mode ${this.difficulty}`);
 
         switch (this.difficulty) {
             case 'easy':
@@ -289,29 +255,9 @@ export class Game {
         }
     }
 
-    incrementEnemyKillCount(entity) {
-        // Vérifier que l'entité n'a pas déjà été comptée comme tuée
-        if (entity && !this.levelState.deadEnemies.has(entity.uuid)) {
-            // Ajouter l'UUID à la liste des ennemis tués
-            this.levelState.deadEnemies.add(entity.uuid);
-
-            // Incrémenter le compteur global
-            this.globalStats.enemiesKilled++;
-
-            // Afficher l'effet +1 si le système est disponible
-            const killSystem = Array.from(this.systems).find(system =>
-                system.constructor.name === 'KillCounterSystem');
-            if (killSystem && killSystem.showKillEffect) {
-                killSystem.showKillEffect();
-            }
-
-            //console.log(`Ennemi tué! Total: ${this.globalStats.enemiesKilled}`);
-        }
-    }
-
     // Respawn le joueur à la position de départ sans réinitialiser le reste
     async respawnPlayer() {
-        //console.log("Respawn du joueur en mode facile");
+        console.log("Respawn du joueur en mode facile");
 
         // Supprimer l'ancien joueur
         const oldPlayer = Array.from(this.entities).find(entity => entity.getComponent('input'));
@@ -326,7 +272,7 @@ export class Game {
 
     // Réinitialiser uniquement le niveau actuel
     async resetCurrentLevel() {
-        //console.log("Réinitialisation du niveau actuel (mode moyen)");
+        console.log("Réinitialisation du niveau actuel (mode moyen)");
 
         // Sauvegarder le niveau actuel
         const currentMap = this.collectibleSystem?.currentMap || 'map1';
@@ -355,7 +301,7 @@ export class Game {
 
     // Réinitialiser complètement le jeu
     async resetGame() {
-        //console.log("Réinitialisation complète du jeu (mode difficile)");
+        console.log("Réinitialisation complète du jeu (mode difficile)");
 
         // Nettoyer le niveau
         this.cleanupLevel();
@@ -439,11 +385,12 @@ export class Game {
         // Utiliser bind pour préserver le contexte
         requestAnimationFrame(this.loop.bind(this));
 
-        // OPTIMISATION 1: Limiter deltaTime pour éviter les pics
         let deltaTime = (currentTime - this.lastTime) / 1000;
-        if (deltaTime > 0.1) deltaTime = 0.1; // Évite les grands sauts de temps
+        if (deltaTime > 0.1) deltaTime = 0.1;
         this.lastTime = currentTime;
 
+        // Si on est en pause mais qu'une cinématique est en cours,
+        // on doit quand même mettre à jour le système de cinématique
         if (this.paused) {
             // Vérifier si une cinématique est en cours
             if (this.cutsceneSystem && this.cutsceneSystem.isPlaying) {
@@ -452,43 +399,9 @@ export class Game {
             return;
         }
 
-        // OPTIMISATION 2: Réduire les calculs pour les entités hors écran
-        this.cullOffscreenEntities();
-
         // Mettre à jour tous les systèmes
         this.systems.forEach((system) => {
             system.update(deltaTime);
-        });
-    }
-
-    // OPTIMISATION 3: Nouvelle méthode pour ignorer les entités hors écran
-    cullOffscreenEntities() {
-        const camera = Array.from(this.entities)
-            .find(entity => entity.getComponent('input'))?.getComponent('camera');
-
-        if (!camera) return;
-
-        const viewportWidth = this.container.clientWidth;
-        const viewportHeight = this.container.clientHeight;
-        const margin = 200; // Marge pour éviter que les entités n'apparaissent/disparaissent brusquement
-
-        this.entities.forEach(entity => {
-            const position = entity.getComponent('position');
-            const visual = entity.getComponent('visual');
-
-            if (!position || !visual) return;
-
-            // Calculer si l'entité est visible à l'écran avec une marge
-            const isVisible =
-                position.x + visual.width + margin >= camera.x - viewportWidth / 2 &&
-                position.x - margin <= camera.x + viewportWidth / 2 &&
-                position.y + visual.height + margin >= camera.y - viewportHeight / 2 &&
-                position.y - margin <= camera.y + viewportHeight / 2;
-
-            // Rendre l'entité visible ou invisible selon sa position
-            if (visual.div) {
-                visual.div.style.display = isVisible ? 'block' : 'none';
-            }
         });
     }
 }

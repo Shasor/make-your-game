@@ -10,12 +10,12 @@ export class Health extends Component {
         this.knockbackDuration = 400; // Même durée que la roulade
     }
 
-    takeDamage(amount) {
-        // if (this.isBeingKnockedBack) return false;
+    takeDamage(amount, knockbackDirection = { x: 0, y: 0 }) {
+        if (this.isBeingKnockedBack) return false;
 
         this.currentLives = Math.max(0, this.currentLives - amount);
-        // this.isBeingKnockedBack = true;
-        // this.knockbackStartTime = Date.now();
+        this.isBeingKnockedBack = true;
+        this.knockbackStartTime = Date.now();
 
         return this.currentLives <= 0;
     }
