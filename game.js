@@ -20,6 +20,7 @@ import { Combat } from './core/systems/combat_system.js';
 import { createPlayer } from './create/player_create.js';
 import { AudioSystem } from './core/systems/audio_system.js';
 import { CutsceneSystem } from './core/systems/cutscene_system.js';
+import { TimerSystem } from './core/systems/timer_system.js';
 
 export class Game {
     constructor(container) {
@@ -142,6 +143,7 @@ export class Game {
         this.addSystem(new Render(this.container));
         this.addSystem(new PhysicsSystem());
         this.addSystem(new Debug());
+        this.addSystem(new TimerSystem());
 
         // Ajouter le système de cinématiques
         this.cutsceneSystem = new CutsceneSystem();
@@ -296,6 +298,29 @@ export class Game {
             collectibleSystem.coinsCollected = 0;
             collectibleSystem.portalActivated = false;
             collectibleSystem.updateDisplay();
+        }
+    }
+
+    pauseGame() {
+        this.paused = true;
+
+        // Pauser le timer du joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (player) {
+            const timer = player.getComponent('timer');
+            if (timer) timer.pause();
+        }
+    }
+
+    // Quand on reprend le jeu
+    resumeGame() {
+        this.paused = false;
+
+        // Reprendre le timer du joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (player) {
+            const timer = player.getComponent('timer');
+            if (timer) timer.resume();
         }
     }
 
