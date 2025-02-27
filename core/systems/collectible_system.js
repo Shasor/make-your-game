@@ -17,8 +17,8 @@ export class Collectible extends System {
         // Créer le conteneur d'UI
         this.uiContainer = document.createElement('div');
         this.uiContainer.style.position = 'fixed';
-        this.uiContainer.style.top = '20px';
-        this.uiContainer.style.right = '20px';
+        this.uiContainer.style.top = '80px';
+        this.uiContainer.style.right = '40px';
         this.uiContainer.style.display = 'flex';
         this.uiContainer.style.flexDirection = 'column';
         this.uiContainer.style.gap = '10px';

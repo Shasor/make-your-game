@@ -20,6 +20,7 @@ import { Combat } from './core/systems/combat_system.js';
 import { createPlayer } from './create/player_create.js';
 import { AudioSystem } from './core/systems/audio_system.js';
 import { CutsceneSystem } from './core/systems/cutscene_system.js';
+import { KillCounterSystem } from './core/systems/kill_counter_system.js';
 
 export class Game {
     constructor(container) {
@@ -37,6 +38,10 @@ export class Game {
             collectedItems: new Set(), // UUID des collectibles ramassés
             score: 0,
             coinsCollected: 0
+        };
+        this.globalStats = {// Compteur d'ennemis tués qui persiste entre les niveaux
+            enemiesKilled: 0,
+            startTime: Date.now() // Optionnel: pour calculer le temps total de jeu
         };
         this.collectibleSystem = null;
         this.firstMapLoad = undefined; // Pour détecter le premier chargement
@@ -142,6 +147,7 @@ export class Game {
         this.addSystem(new Render(this.container));
         this.addSystem(new PhysicsSystem());
         this.addSystem(new Debug());
+        this.addSystem(new KillCounterSystem());
 
         // Ajouter le système de cinématiques
         this.cutsceneSystem = new CutsceneSystem();
@@ -236,6 +242,9 @@ export class Game {
     handlePlayerDeath() {
         console.log(`Gestion de la mort du joueur en mode ${this.difficulty}`);
 
+        // Réinitialiser le compteur d'ennemis tués
+        this.globalStats.enemiesKilled = 0;
+
         switch (this.difficulty) {
             case 'easy':
                 // Mode facile : Juste respawn le joueur et conserver l'état
@@ -255,6 +264,27 @@ export class Game {
         }
     }
 
+    // Dans game.js, ajoutons une méthode dédiée
+    incrementEnemyKillCount(entity) {
+        // Vérifier que l'entité n'a pas déjà été comptée comme tuée
+        if (entity && !this.levelState.deadEnemies.has(entity.uuid)) {
+            // Ajouter l'UUID à la liste des ennemis tués
+            this.levelState.deadEnemies.add(entity.uuid);
+
+            // Incrémenter le compteur global
+            this.globalStats.enemiesKilled++;
+
+            // Afficher l'effet +1 si le système est disponible
+            const killSystem = Array.from(this.systems).find(system =>
+                system.constructor.name === 'KillCounterSystem');
+            if (killSystem && killSystem.showKillEffect) {
+                killSystem.showKillEffect();
+            }
+
+            console.log(`Ennemi tué! Total: ${this.globalStats.enemiesKilled}`);
+        }
+    }
+
     // Respawn le joueur à la position de départ sans réinitialiser le reste
     async respawnPlayer() {
         console.log("Respawn du joueur en mode facile");
@@ -269,6 +299,8 @@ export class Game {
         const player = createPlayer(190, 150);
         this.addEntity(player);
     }
+
+
 
     // Réinitialiser uniquement le niveau actuel
     async resetCurrentLevel() {
