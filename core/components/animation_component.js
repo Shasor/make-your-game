@@ -155,7 +155,7 @@ export class PlayerAnimation extends Animation {
                 speed: 15,
             },
             death: {
-                frames: [182, 183, 184, 185, 186, 187, 188, 189, 190],
+                frames: [91, 92, 93, 94, 95, 96, 97, 182, 183, 184, 185, 186, 187, 188, 189, 190],
                 speed: 15,
             },
             // ... autres séquences du player

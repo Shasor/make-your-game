@@ -18,9 +18,9 @@ export class CircleHitbox extends Component {
     }
 
     initDebugCircles(gameWorld) {
-        this.circles.collision = this.createCircle('collision', this.collisionRadius, 'rgba(255, 255, 0, 0.3)');
-        this.circles.melee = this.createCircle('melee', this.meleeRadius, 'rgba(255, 0, 0, 0.2)');
-        this.circles.ranged = this.createCircle('ranged', this.rangedRadius, 'rgba(0, 0, 255, 0.2)');
+        this.circles.collision = this.createCircle('collision', this.collisionRadius, 'transparent');
+        this.circles.melee = this.createCircle('melee', this.meleeRadius, 'transparent');
+        this.circles.ranged = this.createCircle('ranged', this.rangedRadius, 'transparent');
 
         Object.values(this.circles).forEach(circle => {
             if (circle) gameWorld.appendChild(circle);
