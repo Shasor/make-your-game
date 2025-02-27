@@ -299,6 +299,29 @@ export class Game {
         }
     }
 
+    pauseGame() {
+        this.paused = true;
+
+        // Pauser le timer du joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (player) {
+            const timer = player.getComponent('timer');
+            if (timer) timer.pause();
+        }
+    }
+
+    // Quand on reprend le jeu
+    resumeGame() {
+        this.paused = false;
+
+        // Reprendre le timer du joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (player) {
+            const timer = player.getComponent('timer');
+            if (timer) timer.resume();
+        }
+    }
+
     // Réinitialiser complètement le jeu
     async resetGame() {
         console.log("Réinitialisation complète du jeu (mode difficile)");
