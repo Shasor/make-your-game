@@ -50,22 +50,27 @@ export function createMenu(game, div) {
         return button;
     }
 
-    // Continue (nouveau bouton)
-    const continueBtn = createMenuButton('Continue', () => {
-        game.paused = false;
-    });
-    div.appendChild(continueBtn);
-
     // Resume (maintenu pour compatibilité)
     const resume = createMenuButton('Resume', () => {
         game.paused = false;
+        div.style.visibility = 'hidden';  // Cacher le menu
+        div.style.display = 'none';       // Important pour qu'il n'intercepte pas les clicks
     });
     div.appendChild(resume);
 
-    // restart
+    // restart - Modifier pour redémarrer seulement le niveau actuel
     const restart = createMenuButton('Restart', () => {
         game.paused = false;
-        game.restart();
+        div.style.visibility = 'hidden';  // Cacher le menu
+        div.style.display = 'none';       // Important
+
+        // Utiliser resetCurrentLevel au lieu de restart
+        if (game.resetCurrentLevel) {
+            game.resetCurrentLevel();
+        } else {
+            // Fallback si la méthode n'existe pas
+            game.restart();
+        }
     });
     div.appendChild(restart);
 
