@@ -1,4 +1,3 @@
-
 export function createMenu(game, div) {
     // Clear any existing content
     div.innerHTML = '';

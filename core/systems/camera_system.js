@@ -2,23 +2,23 @@
 import { System } from './system.js';
 
 export class Camera extends System {
-    constructor() {
-        super();
-        this.container = document.querySelector('.container');
-        this.gameWorld = document.createElement('div');
-        this.gameWorld.className = 'game-world';
-        this.container.appendChild(this.gameWorld);
+  constructor() {
+    super();
+    this.container = document.querySelector('.container');
+    this.gameWorld = document.createElement('div');
+    this.gameWorld.className = 'game-world';
+    this.container.appendChild(this.gameWorld);
 
-        // Style the container as viewport
-        this.container.style.overflow = 'hidden';
-        this.container.style.position = 'relative';
+    // Style the container as viewport
+    this.container.style.overflow = 'hidden';
+    this.container.style.position = 'relative';
 
-        // Style the game world
-        this.gameWorld.style.position = 'absolute';
-        this.gameWorld.style.left = '0';
-        this.gameWorld.style.top = '0';
-        this.gameWorld.style.willChange = 'transform'; // Optimisation des performances
-    }
+    // Style the game world
+    this.gameWorld.style.position = 'absolute';
+    this.gameWorld.style.left = '0';
+    this.gameWorld.style.top = '0';
+    this.gameWorld.style.willChange = 'transform'; // Optimisation des performances
+  }
 
     // Méthode pour charger les métadonnées de la carte
     loadMapMetadata(metadata) {
@@ -29,32 +29,33 @@ export class Camera extends System {
             // console.log(`Map dimensions loaded: ${this.mapWidth}x${this.mapHeight}px`);
         }
     }
-    update() {
-        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
-        if (!player) return;
+  }
+  update() {
+    const player = Array.from(this.entities).find((entity) => entity.getComponent('input'));
+    if (!player) return;
 
-        const camera = player.getComponent('camera');
-        const position = player.getComponent('position');
-        const visual = player.getComponent('visual');
-        if (!camera || !position || !visual) return;
+    const camera = player.getComponent('camera');
+    const position = player.getComponent('position');
+    const visual = player.getComponent('visual');
+    if (!camera || !position || !visual) return;
 
-        // Récupérer les dimensions du viewport
-        const viewportWidth = this.container.clientWidth;
-        const viewportHeight = this.container.clientHeight;
+    // Récupérer les dimensions du viewport
+    const viewportWidth = this.container.clientWidth;
+    const viewportHeight = this.container.clientHeight;
 
-        // Suivre le joueur mais respecter les limites de la carte
-        camera.follow(position.x, position.y, visual.width, visual.height);
+    // Suivre le joueur mais respecter les limites de la carte
+    camera.follow(position.x, position.y, visual.width, visual.height);
 
-        // Appliquer les limites de la carte
-        if (this.mapWidth > 0 && this.mapHeight > 0) {
-            // Limiter la caméra à gauche et en haut
-            camera.x = Math.max(camera.x, viewportWidth / 2);
-            camera.y = Math.max(camera.y, viewportHeight / 2);
+    // Appliquer les limites de la carte
+    if (this.mapWidth > 0 && this.mapHeight > 0) {
+      // Limiter la caméra à gauche et en haut
+      camera.x = Math.max(camera.x, viewportWidth / 2);
+      camera.y = Math.max(camera.y, viewportHeight / 2);
 
-            // Limiter la caméra à droite et en bas
-            camera.x = Math.min(camera.x, this.mapWidth - viewportWidth / 2);
-            camera.y = Math.min(camera.y, this.mapHeight - viewportHeight / 2);
-        }
+      // Limiter la caméra à droite et en bas
+      camera.x = Math.min(camera.x, this.mapWidth - viewportWidth / 2);
+      camera.y = Math.min(camera.y, this.mapHeight - viewportHeight / 2);
+    }
 
         // OPTIMISATION 1: Arrondir les valeurs pour éviter le rendu subpixel
         const transformX = Math.round(-camera.x + viewportWidth / 2);
