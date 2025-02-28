@@ -1,7 +1,7 @@
 // core/systems/timer_system.js
 import { System } from './system.js';
 
-export class TimerSystem extends System {
+export class Timer extends System {
     constructor() {
         super();
         this.timerDisplay = this.createTimerDisplay();

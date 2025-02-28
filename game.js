@@ -21,6 +21,7 @@ import { createPlayer } from './create/player_create.js';
 import { AudioSystem } from './core/systems/audio_system.js';
 import { CutsceneSystem } from './core/systems/cutscene_system.js';
 import { KillCounterSystem } from './core/systems/kill_counter_system.js';
+import { Timer } from './core/systems/timer_system.js';
 
 export class Game {
     constructor(container) {
@@ -130,6 +131,7 @@ export class Game {
         this.menu = this.pauseMenu;
 
         // important order of systems !!
+        this.addSystem(new Timer());
         this.addSystem(new Input());
         this.addSystem(new EnemyBehavior());
         this.addSystem(new Combat()); // Avant le Movement
