@@ -9,8 +9,8 @@ export class Collectible extends System {
         this.coinsCollected = 0;
         this.coinsTotal = 6; // Nombre total de pièces dans le niveau
         this.portalActivated = false;
-        this.scoreForNextLevel = 6;
-        this.coinsForNextLevel = 60;
+        this.scoreForNextLevel = 60;
+        this.coinsForNextLevel = 6;
         this.currentMap = 'map1';
         this.finalLevel = 'map4';
 
