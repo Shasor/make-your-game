@@ -9,16 +9,16 @@ export class Collectible extends System {
         this.coinsCollected = 0;
         this.coinsTotal = 6; // Nombre total de pièces dans le niveau
         this.portalActivated = false;
-        this.scoreForNextLevel = 6;
-        this.coinsForNextLevel = 60;
+        this.scoreForNextLevel = 60;
+        this.coinsForNextLevel = 6;
         this.currentMap = 'map1';
         this.finalLevel = 'map4';
 
         // Créer le conteneur d'UI
         this.uiContainer = document.createElement('div');
         this.uiContainer.style.position = 'fixed';
-        this.uiContainer.style.top = '80px';
-        this.uiContainer.style.right = '40px';
+        this.uiContainer.style.top = '20px';
+        this.uiContainer.style.right = '20px';
         this.uiContainer.style.display = 'flex';
         this.uiContainer.style.flexDirection = 'column';
         this.uiContainer.style.gap = '10px';
@@ -78,6 +78,7 @@ export class Collectible extends System {
     }
 
     update() {
+        // Trouver le joueur
         const player = Array.from(this.entities).find((entity) => entity.getComponent('input'));
         if (!player) return;
 
@@ -103,27 +104,36 @@ export class Collectible extends System {
             if (!collectible || collectible.isCollected) return;
 
             if (property && property.isCollided) {
-                // Mettre à jour le score et le compteur de pièces
-                this.score += collectible.collect();
-                this.coinsCollected++;
+                // Vérifier si l'entité qui entre en collision est le joueur
+                const collidingEntities = Array.from(property.collidingWith);
+                const isPlayerColliding = collidingEntities.some(collidingEntity =>
+                    collidingEntity === player
+                );
 
-                // Jouer le son de collecte
-                const entityAudio = entity.getComponent('audio');
-                if (entityAudio && entityAudio.sounds.has('coin_collect')) {
-                    entityAudio.playSound('coin_collect');
+                // Ne collecter que si c'est le joueur qui entre en collision
+                if (isPlayerColliding) {
+                    // Mettre à jour le score et le compteur de pièces
+                    this.score += collectible.collect();
+                    this.coinsCollected++;
+
+                    // Jouer le son de collecte
+                    const entityAudio = entity.getComponent('audio');
+                    if (entityAudio && entityAudio.sounds.has('coin_collect')) {
+                        entityAudio.playSound('coin_collect');
+                    }
+
+                    // Émettre un événement pour le système audio
+                    this.game.eventBus.emit('coinCollected', entity);
+
+                    // Supprimer l'entité du jeu
+                    this.game.removeEntity(entity);
+
+                    // Mettre à jour l'affichage
+                    this.updateDisplay();
+
+                    // Vérifier les conditions de progression
+                    this.checkLevelProgression();
                 }
-
-                // Émettre un événement pour le système audio
-                this.game.eventBus.emit('coinCollected', entity);
-
-                // Supprimer l'entité du jeu
-                this.game.removeEntity(entity);
-
-                // Mettre à jour l'affichage
-                this.updateDisplay();
-
-                // Vérifier les conditions de progression
-                this.checkLevelProgression();
             }
         });
     }
