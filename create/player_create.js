@@ -31,7 +31,7 @@ export function createPlayer(x = 150, y = 150, width = 64, height = 64, color = 
             0, // offsetX: décalage horizontal depuis le coin supérieur gauche (width/2 pour centrer)
             15, // offsetY: décalage vertical depuis le coin supérieur gauche (peut être ajusté selon le sprite)
             15, // terrainRadius: rayon de collision avec le terrain
-            80, // meleeRadius: rayon des attaques au corps à corps
+            30, // meleeRadius: rayon des attaques au corps à corps
             150 // rangedRadius: rayon des attaques à distance
         )
     );
