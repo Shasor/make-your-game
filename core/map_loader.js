@@ -74,6 +74,18 @@ export class MapLoader {
     }
 
     createMapFromData(mapData) {
+        // Calcul des dimensions en pixels
+        const mapWidth = mapData.metadata.width * TILE_CONSTANTS.SCALED_SIZE;
+        const mapHeight = mapData.metadata.height * TILE_CONSTANTS.SCALED_SIZE;
+
+        // Définir les limites pour le système de limite
+        const boundarySystem = Array.from(this.game.systems).find(
+            system => system.constructor.name === 'BoundarySystem'
+        );
+
+        if (boundarySystem) {
+            boundarySystem.setMapBoundaries(mapWidth, mapHeight);
+        }
         // Charger le background si spécifié
         if (mapData.background && mapData.background.path) {
             const gameWorld = document.querySelector('.game-world');

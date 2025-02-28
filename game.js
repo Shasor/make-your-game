@@ -21,6 +21,7 @@ import { createPlayer } from './create/player_create.js';
 import { AudioSystem } from './core/systems/audio_system.js';
 import { CutsceneSystem } from './core/systems/cutscene_system.js';
 import { KillCounterSystem } from './core/systems/kill_counter_system.js';
+import { BoundarySystem } from './core/systems/boundary_system.js';
 
 export class Game {
     constructor(container) {
@@ -137,6 +138,8 @@ export class Game {
         this.addSystem(new Movement());
         this.addSystem(new Collision());
         this.addSystem(new CircleHitbox());
+        this.boundarySystem = new BoundarySystem();
+        this.addSystem(this.boundarySystem);
         this.addSystem(new Gravity());
         this.addSystem(new AudioSystem());
         this.addSystem(new Collectible());
