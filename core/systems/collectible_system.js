@@ -103,27 +103,36 @@ export class Collectible extends System {
             if (!collectible || collectible.isCollected) return;
 
             if (property && property.isCollided) {
-                // Mettre à jour le score et le compteur de pièces
-                this.score += collectible.collect();
-                this.coinsCollected++;
+                // Vérifier si l'entité qui entre en collision est le joueur
+                const collidingEntities = Array.from(property.collidingWith);
+                const isPlayerColliding = collidingEntities.some(collidingEntity =>
+                    collidingEntity === player
+                );
 
-                // Jouer le son de collecte
-                const entityAudio = entity.getComponent('audio');
-                if (entityAudio && entityAudio.sounds.has('coin_collect')) {
-                    entityAudio.playSound('coin_collect');
+                // Ne collecter que si c'est le joueur qui entre en collision
+                if (isPlayerColliding) {
+                    // Mettre à jour le score et le compteur de pièces
+                    this.score += collectible.collect();
+                    this.coinsCollected++;
+
+                    // Jouer le son de collecte
+                    const entityAudio = entity.getComponent('audio');
+                    if (entityAudio && entityAudio.sounds.has('coin_collect')) {
+                        entityAudio.playSound('coin_collect');
+                    }
+
+                    // Émettre un événement pour le système audio
+                    this.game.eventBus.emit('coinCollected', entity);
+
+                    // Supprimer l'entité du jeu
+                    this.game.removeEntity(entity);
+
+                    // Mettre à jour l'affichage
+                    this.updateDisplay();
+
+                    // Vérifier les conditions de progression
+                    this.checkLevelProgression();
                 }
-
-                // Émettre un événement pour le système audio
-                this.game.eventBus.emit('coinCollected', entity);
-
-                // Supprimer l'entité du jeu
-                this.game.removeEntity(entity);
-
-                // Mettre à jour l'affichage
-                this.updateDisplay();
-
-                // Vérifier les conditions de progression
-                this.checkLevelProgression();
             }
         });
     }
