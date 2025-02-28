@@ -12,8 +12,8 @@ export function createCollectable(x = 0, y = 0, type = 'coin', value = 1) {
     const collectable = new Entity();
 
     // Taille standard pour un collectible
-    const width = 64;
-    const height = 64;
+    const width = 48;
+    const height = 48;
 
     // Composants de base
     collectable.addComponent('position', new Position(x, y));
