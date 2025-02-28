@@ -30,7 +30,7 @@ export function createPlayer(x = 150, y = 150, width = 55, height = 55, color = 
         new CircleHitbox(
             0, // offsetX: décalage horizontal depuis le coin supérieur gauche (width/2 pour centrer)
             12, // offsetY: décalage vertical depuis le coin supérieur gauche (peut être ajusté selon le sprite)
-            15, // terrainRadius: rayon de collision avec le terrain
+            13, // terrainRadius: rayon de collision avec le terrain
             30, // meleeRadius: rayon des attaques au corps à corps
             150 // rangedRadius: rayon des attaques à distance
         )

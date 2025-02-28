@@ -12,8 +12,8 @@ export function createCollectable(x = 0, y = 0, type = 'coin', value = 1) {
     const collectable = new Entity();
 
     // Taille standard pour un collectible
-    const width = 48;
-    const height = 48;
+    const width = 32;
+    const height = 32;
 
     // Composants de base
     collectable.addComponent('position', new Position(x, y));
@@ -27,7 +27,7 @@ export function createCollectable(x = 0, y = 0, type = 'coin', value = 1) {
     collectable.addComponent('circle_hitbox', new CircleHitbox(
         0,  // offsetX centré
         0, // offsetY centré
-        20,       // rayon de collision
+        10,       // rayon de collision
         0,        // pas de rayon d'attaque corps à corps
         0         // pas de rayon d'attaque à distance
     ));
