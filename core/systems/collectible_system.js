@@ -261,6 +261,7 @@ export class Collectible extends System {
         }, 2000);
     }
 
+
     async loadNextLevel() {
         try {
             console.log(`Chargement du niveau suivant. Niveau actuel: ${this.currentMap}`);
@@ -282,59 +283,276 @@ export class Collectible extends System {
                     break;
                 case 'map4':
                     gameComplete = true;
-                    console.log("Jeu terminé, déclenchement de la cinématique de fin");
+                    console.log("Jeu terminé!");
                     break;
                 default:
                     nextMap = 'map1';
             }
 
-            // Si le jeu est terminé, afficher la cinématique de fin ou l'écran de fin
-            if (gameComplete) {
-                // Jouer la cinématique de fin
-                const cutsceneSystem = Array.from(this.game.systems).find(
-                    system => system.constructor.name === 'CutsceneSystem'
-                );
-
-                if (cutsceneSystem && cutsceneSystem.playCutscene) {
-                    cutsceneSystem.playCutscene('outro');
-                } else {
-                    this.showGameComplete();
-                }
-                return; // Important: arrêter l'exécution ici
-            }
-
-            // IMPORTANT: Mettre à jour la carte actuelle AVANT de jouer la cinématique
-            console.log(`Mise à jour du niveau actuel de ${this.currentMap} à ${nextMap}`);
+            // Mise à jour de la carte actuelle
             const oldMap = this.currentMap;
             this.currentMap = nextMap;
 
+            // Si le jeu est terminé, calculer le score final et demander le nom
+            if (gameComplete) {
+                // Calculer le score final
+                const finalScore = this.calculateFinalScore();
+
+                // Trouver le système de score
+                const scoreSystem = Array.from(this.game.systems).find(
+                    system => system.constructor.name === 'ScoreSystem'
+                );
+
+                if (scoreSystem) {
+                    // Demander le nom et afficher le classement
+                    scoreSystem.showFinalScoreAndRanking(finalScore, () => {
+                        // Après avoir fermé le classement, lancer la cinématique de fin
+                        this.playOutroCutscene();
+                    });
+                } else {
+                    // Si pas de système de score, lancer directement la cinématique
+                    this.playOutroCutscene();
+                }
+
+                return; // Arrêter l'exécution ici
+            }
+
+            // Pour les niveaux intermédiaires, réinitialiser le score et passer au niveau suivant
             this.score = 0;
             this.coinsCollected = 0;
             this.portalActivated = false;
             this.updateDisplay();
 
-            // Jouer la cinématique avec l'ancienne valeur de map
+            // Jouer la cinématique de transition
+            this.playTransitionCutscene(oldMap, nextMap);
+
+        } catch (error) {
+            console.error('Erreur lors du chargement du niveau suivant:', error);
+        }
+    }
+
+    // Méthode pour jouer la cinématique de fin
+    playOutroCutscene() {
+        const cutsceneSystem = Array.from(this.game.systems).find(
+            system => system.constructor.name === 'CutsceneSystem'
+        );
+
+        if (cutsceneSystem && cutsceneSystem.playCutscene) {
+            cutsceneSystem.playCutscene('outro');
+        } else {
+            this.showGameComplete();
+        }
+    }
+
+    // Méthode pour jouer la cinématique de transition
+    playTransitionCutscene(oldMap, nextMap) {
+        const cutsceneSystem = Array.from(this.game.systems).find(
+            system => system.constructor.name === 'CutsceneSystem'
+        );
+
+        if (cutsceneSystem && cutsceneSystem.playCutscene) {
+            const transitionId = `${oldMap}_to_${nextMap}`;
+            console.log(`Tentative de jouer la cinématique: ${transitionId}`);
+
+            if (cutsceneSystem.cutscenes[transitionId]) {
+                cutsceneSystem.playCutscene(transitionId);
+            } else {
+                console.warn(`Cinématique ${transitionId} non trouvée, chargement direct du niveau.`);
+                this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
+                this.game.paused = false;
+            }
+        } else {
+            this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
+        }
+    }
+
+    // Méthode pour calculer le score final
+    calculateFinalScore() {
+        // Trouver le joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (!player) return 0;
+
+        // Récupérer le temps restant
+        const timer = player.getComponent('timer');
+        const timeRemaining = timer ? timer.currentTime : 0;
+
+        // Calculer le score basé sur le temps et les ennemis tués
+        const timeBonus = Math.floor(timeRemaining * 10); // 10 points par seconde restante
+        const enemyBonus = this.game.globalStats.enemiesKilled * 100; // 100 points par ennemi tué
+        const collectibleScore = this.score; // Score actuel des collectibles
+
+        // Score final
+        const finalScore = collectibleScore + timeBonus + enemyBonus;
+
+        console.log(`Score final: ${finalScore} (Base: ${collectibleScore}, Temps: ${timeBonus}, Ennemis: ${enemyBonus})`);
+
+        return finalScore;
+    }
+
+    // Calcule et sauvegarde le score du niveau
+    calculateAndSaveLevelScore() {
+        // Trouver le joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (!player) return 0;
+
+        // Récupérer le temps restant
+        const timer = player.getComponent('timer');
+        const timeRemaining = timer ? timer.currentTime : 0;
+
+        // Calculer le score basé sur le temps et les ennemis tués
+        const timeBonus = Math.floor(timeRemaining * 10); // 10 points par seconde restante
+        const enemyBonus = this.game.globalStats.enemiesKilled * 100; // 100 points par ennemi tué
+        const collectibleScore = this.score; // Score actuel des collectibles
+
+        // Score final du niveau
+        const finalScore = collectibleScore + timeBonus + enemyBonus;
+
+        console.log(`Score final du niveau: ${finalScore} (Base: ${collectibleScore}, Temps: ${timeBonus}, Ennemis: ${enemyBonus})`);
+
+        // Sauvegarder le score dans le composant Score du joueur
+        const scoreComponent = player.getComponent('score');
+        if (scoreComponent) {
+            scoreComponent.baseScore = collectibleScore;
+            scoreComponent.timeBonus = timeBonus;
+            scoreComponent.enemyBonus = enemyBonus;
+            scoreComponent.totalScore = finalScore;
+
+            // Si le nom est déjà défini, on peut soumettre le score
+            if (this.game.tempPlayerData && this.game.tempPlayerData.name) {
+                scoreComponent.playerName = this.game.tempPlayerData.name;
+            }
+
+            // Soumettre le score au serveur
+            const scoreSystem = Array.from(this.game.systems).find(system => system instanceof ScoreSystem);
+            if (scoreSystem) {
+                scoreSystem.submitScore(scoreComponent);
+            }
+        }
+
+        return finalScore;
+    }
+
+    // Affiche les scores avant de passer au niveau suivant
+    showScoresBeforeNextLevel(oldMap, nextMap) {
+        // Trouver le système de score
+        const scoreSystem = Array.from(this.game.systems).find(system => system instanceof ScoreSystem);
+        if (!scoreSystem) {
+            // Si pas de système de score, passer directement à la cinématique
+            this.transitionToNextLevel(oldMap, nextMap);
+            return;
+        }
+
+        // Afficher le tableau des scores avec un callback pour continuer
+        scoreSystem.showScoreboard(() => {
+            this.transitionToNextLevel(oldMap, nextMap);
+        });
+    }
+
+    // Affiche les scores avant la fin du jeu
+    showScoresBeforeEndgame() {
+        // Trouver le système de score
+        const scoreSystem = Array.from(this.game.systems).find(system => system instanceof ScoreSystem);
+        if (!scoreSystem) {
+            // Si pas de système de score, passer directement à la cinématique de fin
+            this.showGameComplete();
+            return;
+        }
+
+        // Afficher le tableau des scores avec un callback pour la fin
+        scoreSystem.showScoreboard(() => {
+            // Jouer la cinématique de fin
             const cutsceneSystem = Array.from(this.game.systems).find(
                 system => system.constructor.name === 'CutsceneSystem'
             );
 
-
             if (cutsceneSystem && cutsceneSystem.playCutscene) {
-                const transitionId = `${oldMap}_to_${nextMap}`;
-                console.log(`Tentative de jouer la cinématique: ${transitionId}`);
-
-                if (cutsceneSystem.cutscenes[transitionId]) {
-                    cutsceneSystem.playCutscene(transitionId);
-                } else {
-                    console.warn(`Cinématique ${transitionId} non trouvée, chargement direct du niveau.`);
-                    await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
-                    this.game.paused = false;
-                }
+                cutsceneSystem.playCutscene('outro');
             } else {
-                await this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
+                this.showGameComplete();
             }
-        } catch (error) {
-            console.error('Erreur lors du chargement du niveau suivant:', error);
+        });
+    }
+
+    // Fait la transition vers le niveau suivant
+    transitionToNextLevel(oldMap, nextMap) {
+        // Réinitialiser le score pour le prochain niveau
+        this.score = 0;
+        this.coinsCollected = 0;
+        this.portalActivated = false;
+        this.updateDisplay();
+
+        // Jouer la cinématique de transition
+        const cutsceneSystem = Array.from(this.game.systems).find(
+            system => system.constructor.name === 'CutsceneSystem'
+        );
+
+        if (cutsceneSystem && cutsceneSystem.playCutscene) {
+            const transitionId = `${oldMap}_to_${nextMap}`;
+            console.log(`Tentative de jouer la cinématique: ${transitionId}`);
+
+            if (cutsceneSystem.cutscenes[transitionId]) {
+                cutsceneSystem.playCutscene(transitionId);
+            } else {
+                console.warn(`Cinématique ${transitionId} non trouvée, chargement direct du niveau.`);
+                this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
+                this.game.paused = false;
+            }
+        } else {
+            this.game.mapLoader.loadMap(`./assets/maps/${nextMap}.json`);
+        }
+    }
+
+    calculateAndSubmitFinalScore() {
+        // Trouver le joueur
+        const player = Array.from(this.entities).find(entity => entity.getComponent('input'));
+        if (!player) return;
+
+        // Récupérer le temps restant
+        const timer = player.getComponent('timer');
+        const timeRemaining = timer ? timer.currentTime : 0;
+
+        // Calculer le score total
+        const timeBonus = Math.floor(timeRemaining * 10); // 10 points par seconde restante
+        const enemyBonus = this.game.globalStats.enemiesKilled * 100; // 100 points par ennemi tué
+        const collectibleScore = this.score; // Score actuel des collectibles
+
+        // Score final
+        const finalScore = collectibleScore + timeBonus + enemyBonus;
+
+        console.log(`Score final du jeu: ${finalScore} (Base: ${collectibleScore}, Temps: ${timeBonus}, Ennemis: ${enemyBonus})`);
+
+        // Obtenir ou créer le composant Score du joueur
+        let scoreComponent = player.getComponent('score');
+        if (!scoreComponent) {
+            // Import dynamique du composant Score si nécessaire
+            import('../components/score_component.js').then(module => {
+                scoreComponent = new module.Score();
+                player.addComponent('score', scoreComponent);
+                this.updateAndSubmitScore(scoreComponent, collectibleScore, timeBonus, enemyBonus, finalScore);
+            });
+        } else {
+            this.updateAndSubmitScore(scoreComponent, collectibleScore, timeBonus, enemyBonus, finalScore);
+        }
+    }
+
+    updateAndSubmitScore(scoreComponent, baseScore, timeBonus, enemyBonus, finalScore) {
+        // Mettre à jour les valeurs du score
+        scoreComponent.baseScore = baseScore;
+        scoreComponent.timeBonus = timeBonus;
+        scoreComponent.enemyBonus = enemyBonus;
+        scoreComponent.totalScore = finalScore;
+
+        // Récupérer le nom du joueur (défini au début du jeu)
+        if (this.game.tempPlayerData && this.game.tempPlayerData.name) {
+            scoreComponent.playerName = this.game.tempPlayerData.name;
+        }
+
+        // Soumettre le score au serveur
+        const scoreSystem = Array.from(this.game.systems).find(
+            system => system.constructor.name === 'ScoreSystem');
+
+        if (scoreSystem && scoreSystem.submitScore) {
+            scoreSystem.submitScore(scoreComponent);
         }
     }
 
