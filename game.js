@@ -22,6 +22,7 @@ import { AudioSystem } from './core/systems/audio_system.js';
 import { CutsceneSystem } from './core/systems/cutscene_system.js';
 import { KillCounterSystem } from './core/systems/kill_counter_system.js';
 import { BoundarySystem } from './core/systems/boundary_system.js';
+import { ScoreSystem } from './core/systems/score_system.js';
 
 export class Game {
     constructor(container) {
@@ -140,6 +141,8 @@ export class Game {
         this.addSystem(new CircleHitbox());
         this.boundarySystem = new BoundarySystem();
         this.addSystem(this.boundarySystem);
+        this.scoreSystem = new ScoreSystem();
+        this.addSystem(this.scoreSystem);
         this.addSystem(new Gravity());
         this.addSystem(new AudioSystem());
         this.addSystem(new Collectible());
@@ -190,24 +193,115 @@ export class Game {
             // Cacher le menu principal
             this.mainMenu.style.display = 'none';
 
-            if (this.skipIntro) {
-                // Sauter directement à la map1 si on choisit de sauter l'intro
-                this.mapLoader.loadMap('./assets/maps/map1.json').then(() => {
-                    this.paused = false;
-                });
-            } else {
-                // Sinon, lancer la cinématique d'introduction
-                if (this.cutsceneSystem) {
-                    this.cutsceneSystem.playCutscene('intro');
-                    // Le chargement de la map1 est géré par la cinématique
-                } else {
-                    // Fallback si le système de cinématique n'est pas disponible
+            // Demander le nom du joueur
+            this.showNamePrompt(() => {
+                // Callback après saisie du nom
+                if (this.skipIntro) {
+                    // Sauter directement à la map1 si on choisit de sauter l'intro
                     this.mapLoader.loadMap('./assets/maps/map1.json').then(() => {
                         this.paused = false;
                     });
+                } else {
+                    // Sinon, lancer la cinématique d'introduction
+                    if (this.cutsceneSystem) {
+                        this.cutsceneSystem.playCutscene('intro');
+                    } else {
+                        // Fallback si le système de cinématique n'est pas disponible
+                        this.mapLoader.loadMap('./assets/maps/map1.json').then(() => {
+                            this.paused = false;
+                        });
+                    }
                 }
+            });
+        };
+    }
+
+    // Ajoutons une méthode pour demander le nom du joueur
+    showNamePrompt(callback) {
+        // Créer le conteneur du formulaire
+        const formContainer = document.createElement('div');
+        formContainer.style.position = 'fixed';
+        formContainer.style.top = '0';
+        formContainer.style.left = '0';
+        formContainer.style.width = '100%';
+        formContainer.style.height = '100%';
+        formContainer.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        formContainer.style.display = 'flex';
+        formContainer.style.flexDirection = 'column';
+        formContainer.style.justifyContent = 'center';
+        formContainer.style.alignItems = 'center';
+        formContainer.style.zIndex = '3000';
+
+        // Titre
+        const title = document.createElement('h2');
+        title.textContent = 'Entrez votre nom pour commencer';
+        title.style.color = '#FFD700';
+        title.style.fontSize = '28px';
+        title.style.fontFamily = "'Press Start 2P', sans-serif";
+        title.style.marginBottom = '30px';
+        title.style.textAlign = 'center';
+
+        // Créer le formulaire
+        const form = document.createElement('div');
+        form.style.display = 'flex';
+        form.style.flexDirection = 'column';
+        form.style.alignItems = 'center';
+        form.style.gap = '20px';
+
+        // Input pour le nom
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.placeholder = 'Votre nom';
+        nameInput.style.padding = '10px';
+        nameInput.style.fontSize = '18px';
+        nameInput.style.width = '300px';
+        nameInput.style.borderRadius = '5px';
+        nameInput.style.fontFamily = "'Press Start 2P', sans-serif";
+
+        // Bouton de soumission
+        const submitButton = document.createElement('button');
+        submitButton.textContent = 'Commencer l\'aventure';
+        submitButton.style.padding = '10px 20px';
+        submitButton.style.fontSize = '18px';
+        submitButton.style.backgroundColor = '#4CAF50';
+        submitButton.style.color = 'white';
+        submitButton.style.border = 'none';
+        submitButton.style.borderRadius = '5px';
+        submitButton.style.cursor = 'pointer';
+        submitButton.style.fontFamily = "'Press Start 2P', sans-serif";
+
+        submitButton.onclick = () => {
+            const playerName = nameInput.value.trim();
+            if (playerName) {
+                // Sauvegarder le nom du joueur
+                if (!this.tempPlayerData) {
+                    this.tempPlayerData = { name: playerName };
+                } else {
+                    this.tempPlayerData.name = playerName;
+                }
+
+                // Retirer le formulaire
+                document.body.removeChild(formContainer);
+
+                // Exécuter le callback
+                if (callback) callback();
+            } else {
+                // Alerte si le nom est vide
+                alert("Veuillez entrer votre nom!");
             }
         };
+
+        // Assembler le formulaire
+        form.appendChild(nameInput);
+        form.appendChild(submitButton);
+
+        formContainer.appendChild(title);
+        formContainer.appendChild(form);
+
+        document.body.appendChild(formContainer);
+
+        // Focus sur l'input
+        nameInput.focus();
     }
 
     addEntity(entity) {
@@ -276,6 +370,9 @@ export class Game {
 
             // Incrémenter le compteur global
             this.globalStats.enemiesKilled++;
+
+            // Émettre un événement pour le système de score
+            this.eventBus.emit('enemyKilled', entity);
 
             // Afficher l'effet +1 si le système est disponible
             const killSystem = Array.from(this.systems).find(system =>
