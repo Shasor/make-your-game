@@ -11,7 +11,7 @@ export class KillCounter extends Component {
         const display = document.createElement('div');
         display.style.position = 'fixed';
         display.style.top = '35px'; // Sous le compteur de temps
-        display.style.right = '40px';
+        display.style.right = '270px';
         display.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
         display.style.color = '#FF5555'; // Rouge pour représenter les ennemis tués
         display.style.padding = '10px 15px';
